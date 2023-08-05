@@ -31,12 +31,11 @@ A 1-hour long asset with 6s segments with 30fps video and two audio tracks.
 The MPDs are:
 
 * Manifest.mpd - a simple MPD using SegmentTemplate with `$Number$``
-* multiaudio.mpd - same as Manifest.mpd but with two audio tracks
+* multiaudio.mpd - same as Manifest.mpd but with two audio tracks (the second is a copy of the first via a symbolic link)
 * mixeddur.mpd - an MPD combining 6s audio segments with 2s video segments (the latter from testpic_2s)
 
+To make the asset ready, the zip archives must be unpacked. That can be done by running the script `unzip.sh`.
 
 [livesim]: https://livesim.dashif.org
 [livesim2]: https://github.com/Dash-Industry-Forum/livesim2
 [git-lfs]: https://git-lfs.com
-
-
