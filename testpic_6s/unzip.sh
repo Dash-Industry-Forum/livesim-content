@@ -1,1 +1,0 @@
-for FILE in *.zip; do unzip $FILE; done
