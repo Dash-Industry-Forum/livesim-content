@@ -47,20 +47,31 @@ After that, it should be fine to run
 ### Unpacking the content
 
 You finally need to unpack the content.
-Use one of the scripts in the tools directory.
-For example, to unpack the `testpic_2s` content,
-run
+
+ALl content can be unzipped using the top-level command
+
+```sh
+> unpack_all.sh
+```
+
+that iterates through the directories and unzips all zip files.
+
+You can also unpack a single asset like `testpic_2s` using
 
 ```sh
 > cd testpic_2s
-> ../tools/unpack_and_clean.sh
+> ../tools/unpack.sh
 ```
 
-to unpack all the zip-files and then remove them.
-If you want to keep the `.zip` files, run `tools/unpack.sh` instead.
+to unpack all the zip-files.
+If you want to remove the `.zip` files, run `tools/unpack_and_clean.sh` instead.
 
-The asset should now be in a format that can be read and processed by `livesim2`, provided that it is in a
-subdirectory under `--vodroot`.
+You can remove the zip-files, but it may be good to keep them so that an update
+via git only downloads new assets. After a git update, check if any zip-file has
+been updated and run the unpack tool on that specific directory.
+
+The asset should now be in a format that can be read and processed by `livesim2`,
+provided that it is in a subdirectory under `--vodroot`.
 
 ## Assets
 
@@ -108,6 +119,18 @@ The MPDs are:
 | Manifest.mpd | base simple MPD using SegmentTemplate with `$Number$`| OK |
 | multiaudio.mpd | same as Manifest.mpd but with two audio tracks (the second is a copy of the first via a symbolic link) | OK |
 | mixeddur.mpd | combination of 6s audio segments with 2s video segments (the latter from testpic_2s) | OK |
+
+### testpic4_8s
+
+A 1-hour long asset with 8s segments with 30fps video at three bitrates (300kbps, 600kbps, and 1200kbps) and MPDs that contain different subsets.
+
+The MPDs are:
+
+| Name | Specifics  | livesim2 status |
+| ---- | ---------- | --------------- |  
+| Manifest.mpd | base simple MPD using SegmentTemplate with `$Number$` and all bitrates | OK |
+| Manifest_300.mpd | same as Manifest.mpd but limited to 300kbps video | OK |
+| Manifest_600.mpd | same as Manifest.mpd but limited to 300kbps and 600kbs video | OK |
 
 [livesim]: https://livesim.dashif.org
 [livesim2]: https://github.com/Dash-Industry-Forum/livesim2
