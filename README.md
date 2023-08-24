@@ -84,7 +84,7 @@ A 1-hour long asset with 2s segments with 30fps video and many subtitle options.
 The MPDs that can be played live are:
 
 | Name | Specifics  | livesim2 status |
-| ---- | ---------- | --------------- | 
+| ---- | ---------- | --------------- |
 | Manifest.mpd | base simple MPD using SegmentTemplate with `$Number$`| OK |
 | Manifest_avc3.mpd | same as Manifest.mpd but with avc3 codec signaling | Bad (init_avc3.mp4 missing) |
 | Manifest_dvb.mpd | same as Manifest.mpd, but adding DVB profiles | OK |
