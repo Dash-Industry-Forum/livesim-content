@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <MPD xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mobitv="urn:mobitv" xmlns="urn:mpeg:dash:schema:mpd:2011" xsi:schemaLocation="urn:mpeg:dash:schema:mpd:2011 DASH-MPD.xsd" profiles="urn:mpeg:dash:profile:isoff-live:2011,urn:com:dashif:dash264" maxSegmentDuration="PT6S" minBufferTime="PT2S" type="static" mediaPresentationDuration="PT1H">
-   <ProgramInformation>
-      <Title>
-      640x360@30, 48kHz with two audio tracks (same content)
-      </Title>   </ProgramInformation>
+   <ProgramInformation moreInformationURL="https://github.com/dash-Industry-Forum/livesim-content">
+      <Title>640x360@30, 48kHz with two audio tracks (same content)</Title>
+      <Source>VoD source for DASH-IF livesim2</Source>
+   </ProgramInformation>
    <Period mobitv:publishTime="1970-01-01T00:00:00Z" id="precambrian" start="PT0S">
       <AdaptationSet contentType="audio" mimeType="audio/mp4" lang="en" mobitv:qualityLevel="SD" segmentAlignment="true" startWithSAP="1">
          <Role schemeIdUri="urn:mpeg:dash:role:2011" value="main"/>
