@@ -41,7 +41,7 @@ On Mac, you can analogously run
 After that, it should be fine to run
 
 ```sh
-> git clone https://github.com/Dash-Industry-Forum/livesim-content.git
+> git clone VoD source for DASH-IF livesim2.git
 ```
 
 ### Unpacking the content
