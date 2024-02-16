@@ -3,16 +3,6 @@
 This repo contains test content used by the DASH-IF online
 service [livesim2][livesim2].
 
-The 
-
-SH-IF online service [https://livesim.dashif.org][livesim].
-All content is DASH VoD assets in live profile.
-
-
-As part of this transition, it is important that all relevant
-test assets are available for download to an alternative
-server.
-
 For easy download, a mixed storage format is used
 where each representation
 directory with hundreds of files is made into an archive
