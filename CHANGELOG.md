@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- testpic_2s and testpic_6s: edit lists in the video and audio `init.mp4` make the first picture start at time 0 and remove the AAC priming
 - README file mess
 - An extra backtick in testpic_2s/Manifest.mpd
 
