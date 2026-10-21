@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `tools/elstpatch`: checks where a representation's presentation starts and fixes it with a CMAF edit list in `init.mp4`
+
 ### Removed
 
 - testpic_2s/Manifest_avc3.mpd, since it defined the V300 Representation differently from the other MPDs of the asset,

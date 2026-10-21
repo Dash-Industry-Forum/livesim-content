@@ -134,6 +134,44 @@ The MPDs are:
 | Manifest_300.mpd | same as Manifest.mpd but limited to 300kbps video | OK |
 | Manifest_600.mpd | same as Manifest.mpd but limited to 300kbps and 600kbs video | OK |
 
+## Tools
+
+### elstpatch
+
+`tools/elstpatch` is a Go tool (based on [mp4ff][mp4ff]) that checks where the
+presentation of a representation starts. It can then fix the start by adding a
+single-entry CMAF edit list (`elst`) to the init segment. The media segments
+are never changed.
+
+* video: the first picture often has a composition time offset because of
+  B-frames. The edit list removes that offset so the first picture is
+  presented at time 0.
+* audio: the edit list removes the AAC encoder priming (`-priming`, in audio
+  samples), so it is not played. The priming can't be seen in the segments,
+  and may already have been removed when the asset was made. Measure it, e.g.
+  by decoding, before giving it. Without `-priming`, audio is left alone.
+
+Without `-write`, the tool only reports. For each init segment it prints the
+existing edit list, segment count, total duration, and the offset between
+earliest presentation time and `tfdt` in all segments. The edit list shifts
+every segment by the same amount, so for video that offset should be the same
+in every segment. Each argument is a representation directory with
+`init.mp4` and `*.m4s` segments. Writing is refused if mp4ff can't
+re-encode the original `init.mp4` byte for byte.
+
+```sh
+> go -C tools/elstpatch build
+> tools/elstpatch/elstpatch testpic_2s/V300 testpic_2s/A48    # report only
+> tools/elstpatch/elstpatch -write -priming 1024 testpic_2s/V300 testpic_2s/A48
+```
+
+livesim2 reads the edit list from the init segment. For audio it shifts the
+SegmentTimeline times (`$Time$`) by the priming, and shortens the first segment
+of the timeline. After patching, update the `init.mp4` entry in the
+representation `.zip` file (e.g. `cd testpic_2s && zip V300.zip V300/init.mp4`),
+and regenerate the representation data with `livesim2 --writerepdata`.
+
 [livesim]: https://livesim.dashif.org
 [livesim2]: https://github.com/Dash-Industry-Forum/livesim2
 [git-lfs]: https://git-lfs.com
+[mp4ff]: https://github.com/Eyevinn/mp4ff
