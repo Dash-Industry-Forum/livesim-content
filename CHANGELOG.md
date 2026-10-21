@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- testpic_2s/Manifest_avc3.mpd, since it defined the V300 Representation differently from the other MPDs of the asset,
+  which livesim2 does not support. livesim2 will instead offer avc3 signaling as a URL option.
+
 ### Fixed
 
 - README file mess
