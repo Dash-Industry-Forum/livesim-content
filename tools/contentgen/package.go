@@ -34,7 +34,7 @@ type segment struct {
 	first, end int    // samples [first, end) of the packaged samples
 	tfdt       uint64 // decode time of the first sample
 	dur        uint64 // sum of the sample durations
-	ept        uint64 // earliest presentation time, before the edit list
+	ept        uint64 // earliest presentation time, before any edit list
 	start      uint64 // start in the MPD timeline, after the edit list
 	mpdDur     uint64 // duration in the MPD timeline
 	nr         int    // segment number
@@ -48,10 +48,10 @@ type packaged struct {
 	timescale uint32
 	skip      int          // input samples to skip (audio priming)
 	samples   []sampleMeta // packaged samples, re-anchored to decode time 0
-	ctoShift  int32        // subtracted from all composition time offsets
+	ctoShift  int32        // subtracted from all composition time offsets (video)
 	elst      int64        // edit list media_time, 0 for none
 	segs      []segment
-	notConst  int // segments whose EPT-tfdt differs from the first one (video)
+	notConst  int // video segments whose earliest presentation time is not their tfdt
 }
 
 // forEachFragment calls fn for the init segment and then for every fragment
@@ -140,20 +140,19 @@ func readTrack(path string) (*track, error) {
 }
 
 // planVideo cuts video into segments at the keyframes on the segment grid.
-// Composition time offsets are made non-negative, and the edit list removes
-// the offset of the first picture, so that the presentation starts at 0.
+// The composition time offsets are shifted so that the first picture, which
+// is first in decode order, has offset 0. Its presentation time is then its
+// decode time, so the presentation starts at 0 without an edit list.
+// Pictures that are presented before a picture decoded earlier (B-frames)
+// get negative offsets, which need trun version 1.
 func planVideo(t *track, id string, segTicks uint64, nSegs int) (*packaged, error) {
 	p := &packaged{id: id, timescale: t.init.Moov.Trak.Mdia.Mdhd.Timescale}
 	d0 := t.samples[0].dts
-	minCTO := t.samples[0].cto
-	for _, s := range t.samples {
-		minCTO = min(minCTO, s.cto)
-	}
-	p.ctoShift = minCTO
+	p.ctoShift = t.samples[0].cto
 	p.samples = make([]sampleMeta, len(t.samples))
 	for i, s := range t.samples {
 		s.dts -= d0
-		s.cto -= minCTO
+		s.cto -= p.ctoShift
 		p.samples[i] = s
 	}
 	if !p.samples[0].sync {
@@ -174,14 +173,18 @@ func planVideo(t *track, id string, segTicks uint64, nSegs int) (*packaged, erro
 	if len(starts) != nSegs {
 		return nil, fmt.Errorf("%s: got %d segments, expected %d", id, len(starts), nSegs)
 	}
-	p.segs = makeSegments(p.samples, starts)
+	segs, err := makeSegments(p.samples, starts)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", id, err)
+	}
+	p.segs = segs
 	last := p.segs[len(p.segs)-1]
 	if total := last.tfdt + last.dur; total != uint64(nSegs)*segTicks {
 		return nil, fmt.Errorf("%s: video duration %d, expected %d", id, total, uint64(nSegs)*segTicks)
 	}
-	p.elst = int64(p.segs[0].ept - p.segs[0].tfdt)
+	// With closed GOPs, the first picture of a segment is also presented first.
 	for _, s := range p.segs {
-		if int64(s.ept-s.tfdt) != p.elst {
+		if s.ept != s.tfdt {
 			p.notConst++
 		}
 	}
@@ -225,13 +228,19 @@ func planAudio(t *track, id, mode string, frames int, segTicks uint64, nSegs int
 	if len(starts) != nSegs {
 		return nil, fmt.Errorf("%s: got %d segments, expected %d", id, len(starts), nSegs)
 	}
-	p.segs = makeSegments(p.samples, starts)
+	segs, err := makeSegments(p.samples, starts)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", id, err)
+	}
+	p.segs = segs
 	p.setTimeline()
 	return p, nil
 }
 
-// makeSegments makes segments that start at the given sample indices.
-func makeSegments(samples []sampleMeta, starts []int) []segment {
+// makeSegments makes segments that start at the given sample indices. The
+// composition time offsets may be negative, but no segment may start to be
+// presented before time 0.
+func makeSegments(samples []sampleMeta, starts []int) ([]segment, error) {
 	segs := make([]segment, len(starts))
 	for k, first := range starts {
 		end := len(samples)
@@ -239,14 +248,18 @@ func makeSegments(samples []sampleMeta, starts []int) []segment {
 			end = starts[k+1]
 		}
 		s := segment{first: first, end: end, tfdt: samples[first].dts}
-		s.ept = samples[first].dts + uint64(samples[first].cto)
+		ept := int64(samples[first].dts) + int64(samples[first].cto)
 		for _, m := range samples[first:end] {
 			s.dur += uint64(m.dur)
-			s.ept = min(s.ept, m.dts+uint64(m.cto))
+			ept = min(ept, int64(m.dts)+int64(m.cto))
 		}
+		if ept < 0 {
+			return nil, fmt.Errorf("segment %d is presented from %d, before 0", k, ept)
+		}
+		s.ept = uint64(ept)
 		segs[k] = s
 	}
-	return segs
+	return segs, nil
 }
 
 // setTimeline sets the start and duration of every segment in the MPD
@@ -295,6 +308,7 @@ func (p *packaged) write(t *track, dir string) error {
 	var seg *mp4.MediaSegment
 	var frag *mp4.Fragment
 	flush := func() error {
+		setTrunVersions(seg)
 		var buf bytes.Buffer
 		if err := seg.Encode(&buf); err != nil {
 			return err
@@ -345,6 +359,23 @@ func (p *packaged) write(t *track, dir string) error {
 		return fmt.Errorf("%s: wrote %d of %d segments", p.id, k, len(p.segs))
 	}
 	return flush()
+}
+
+// setTrunVersions makes the trun boxes version 0, unless they have negative
+// composition time offsets, which need version 1. CMAF does not allow
+// version 1 together with an edit list, which audio may have.
+func setTrunVersions(seg *mp4.MediaSegment) {
+	for _, f := range seg.Fragments {
+		for _, trun := range f.Moof.Traf.Truns {
+			trun.Version = 0
+			for _, s := range trun.Samples {
+				if s.CompositionTimeOffset < 0 {
+					trun.Version = 1
+					break
+				}
+			}
+		}
+	}
 }
 
 // writeInit writes the init segment with the given edit list (none for 0).

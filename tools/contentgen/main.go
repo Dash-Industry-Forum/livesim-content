@@ -4,8 +4,9 @@
 // every full second), and audio with a tone at the start of every second.
 //
 // ffmpeg encodes each representation to a fragmented MP4. contentgen then
-// cuts it into segments on the segment grid, adds edit lists where needed
-// (video with B-frames, audio priming), computes the codecs strings and the
+// cuts it into segments on the segment grid, shifts the video composition
+// time offsets so that each segment is presented from its tfdt, adds edit
+// lists for the audio priming where needed, computes the codecs strings and the
 // @bandwidth values, and writes the MPD. See README.md.
 package main
 
@@ -315,8 +316,8 @@ func report(c *Config, results []*repResult, mpdPath string) {
 		fmt.Printf("%-12s %-22s %5d %6dk %7.0fk %5.0f%% %10d %s\n", r.pkg.id, r.codecs, len(r.pkg.segs),
 			target, avg/1000, 100*avg/float64(target*1000), r.bandwidth, elst)
 		if r.pkg.notConst > 0 {
-			fmt.Printf("  warning: %d segments have another composition offset than the first; the edit list does not fit them\n",
-				r.pkg.notConst)
+			fmt.Printf("  warning: %d segments are not presented from their first picture, so their earliest "+
+				"presentation time differs from their tfdt\n", r.pkg.notConst)
 		}
 	}
 	if c.Addressing == AddrTimelineNumber {

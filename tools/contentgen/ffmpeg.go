@@ -191,7 +191,11 @@ func videoFilter(c *Config, r VideoRep, files overlayFiles) string {
 	fmt.Fprintf(&b, "drawbox=x=iw-%d-%d:y=ih-%d-%d:w=%d:h=%d:color=white:t=fill[main];",
 		mg, logoW+2*logoPad, mg, logoH+2*logoPad, logoW+2*logoPad, logoH+2*logoPad)
 	fmt.Fprintf(&b, "[2:v]scale=%d:%d[logo];", logoW, logoH)
-	fmt.Fprintf(&b, "[main][logo]overlay=x=W-%d-%d:y=H-%d-%d[v]", mg+logoPad, logoW, mg+logoPad, logoH)
+	fmt.Fprintf(&b, "[main][logo]overlay=x=W-%d-%d:y=H-%d-%d,", mg+logoPad, logoW, mg+logoPad, logoH)
+	// Convert to BT.709 YUV and tag the frames, so that the encoders and the
+	// colr box signal it (CMAF requires colr for HEVC).
+	b.WriteString("scale=out_color_matrix=bt709:out_range=tv,format=yuv420p," +
+		"setparams=color_primaries=bt709:color_trc=bt709:colorspace=bt709:range=tv[v]")
 	return b.String()
 }
 
@@ -253,7 +257,7 @@ func videoArgs(c *Config, r VideoRep, files overlayFiles, out string) []string {
 			"-b:v", fmt.Sprintf("%dk", br))
 	}
 	return append(args, "-video_track_timescale", fmt.Sprint(fps.timescale()),
-		"-movflags", "+frag_keyframe+empty_moov+default_base_moof", "-f", "mp4", out)
+		"-movflags", "+frag_keyframe+empty_moov+default_base_moof+write_colr", "-f", "mp4", out)
 }
 
 // signalExpr returns the aevalsrc expression of the test signal: a 0.5 s tone

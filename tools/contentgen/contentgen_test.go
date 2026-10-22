@@ -98,9 +98,19 @@ func TestPlanVideo(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Offsets shifted by 2 frames: the I frame then has offset 1 frame.
-	if p.ctoShift != -2*frameDur || p.elst != frameDur || p.notConst != 0 {
-		t.Errorf("B-frames: ctoShift=%d elst=%d notConst=%d", p.ctoShift, p.elst, p.notConst)
+	// Offsets shifted by the offset of the first (I) frame, which then has 0.
+	// No edit list, and the B-frames get negative offsets.
+	if p.ctoShift != -frameDur || p.elst != 0 || p.notConst != 0 || p.samples[0].cto != 0 {
+		t.Errorf("B-frames: ctoShift=%d elst=%d notConst=%d first cto=%d", p.ctoShift, p.elst, p.notConst, p.samples[0].cto)
+	}
+	negative := 0
+	for _, s := range p.samples {
+		if s.cto < 0 {
+			negative++
+		}
+	}
+	if negative == 0 {
+		t.Error("B-frames: expected negative composition time offsets")
 	}
 	for k, s := range p.segs {
 		if s.start != s.tfdt || s.mpdDur != gop*frameDur {

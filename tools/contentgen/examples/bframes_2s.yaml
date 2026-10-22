@@ -1,6 +1,7 @@
-# AVC and HEVC with B-frames. The first picture then has a composition time
-# offset, which an edit list in init.mp4 removes, so that the presentation
-# starts at 0. Audio keeps its encoder priming, signalled with an edit list.
+# AVC and HEVC with B-frames. The composition time offsets are shifted so
+# that the first picture of every segment has offset 0, and the B-frames get
+# negative offsets (trun version 1), so the presentation starts at 0 without
+# an edit list. Audio keeps its encoder priming, signalled with an edit list.
 name: bframes_2s
 duration: 120
 segmentDuration: 2
