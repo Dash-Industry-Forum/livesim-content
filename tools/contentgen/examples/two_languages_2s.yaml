@@ -1,0 +1,16 @@
+# Two audio languages, each its own Adaptation Set: English with a monotonic
+# beep (880 Hz, 1760 Hz at every full minute) is main, and Swedish with rising
+# tones (a C major scale, one note per second, repeating every 8 s) is
+# alternate. The signal shows which track is playing.
+name: two_languages_2s
+duration: 120
+segmentDuration: 2
+video:
+  fps: 25
+  representations:
+    - {id: V400, codec: avc, width: 640, height: 360, bitrate: 400}
+    - {id: V1600, codec: avc, width: 1280, height: 720, bitrate: 1600}
+audio:
+  representations:
+    - {id: Aen, codec: aac, bitrate: 128, signal: beep, lang: en, label: "English, monotonic beep"}
+    - {id: Asv, codec: aac, bitrate: 128, signal: scale, lang: sv, label: "Swedish, rising tones"}

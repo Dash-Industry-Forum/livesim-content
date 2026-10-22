@@ -1,0 +1,14 @@
+# SegmentTimeline with $Number$, as made by e.g. Shaka Packager.
+# livesim2 does not yet read this VoD format (livesim2 issue #152).
+name: timeline_number_2s
+duration: 120
+segmentDuration: 2
+addressing: timeline-number
+video:
+  fps: 25
+  representations:
+    - {id: V400, codec: avc, width: 640, height: 360, bitrate: 400}
+    - {id: V1600, codec: avc, width: 1280, height: 720, bitrate: 1600}
+audio:
+  representations:
+    - {id: A128, codec: aac, bitrate: 128, lang: en}

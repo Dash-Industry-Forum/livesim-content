@@ -1,0 +1,21 @@
+# AVC, HEVC and AV1 video in one Adaptation Set each, and AAC, Opus and AC-3
+# audio, with SegmentTimeline and $Time$.
+name: codecs_2s
+duration: 120
+segmentDuration: 2
+addressing: timeline-time
+video:
+  fps: 25
+  representations:
+    - {id: Vavc360, codec: avc, width: 640, height: 360, bitrate: 400}
+    - {id: Vavc720, codec: avc, width: 1280, height: 720, bitrate: 1600}
+    - {id: Vhevc360, codec: hevc, width: 640, height: 360, bitrate: 300}
+    - {id: Vhevc720, codec: hevc, width: 1280, height: 720, bitrate: 1200}
+    - {id: Vav1360, codec: av1, width: 640, height: 360, bitrate: 250}
+    - {id: Vav1720, codec: av1, width: 1280, height: 720, bitrate: 1000}
+audio:
+  representations:
+    - {id: Aaac64, codec: aac, bitrate: 64, signal: beep, lang: en}
+    - {id: Aaac128, codec: aac, bitrate: 128, signal: beep, lang: en}
+    - {id: Aopus, codec: opus, bitrate: 96, signal: scale, lang: en, label: "Opus scale"}
+    - {id: Aac3, codec: ac3, bitrate: 192, signal: beep, lang: en}

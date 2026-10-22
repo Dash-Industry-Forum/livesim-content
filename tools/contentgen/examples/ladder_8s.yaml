@@ -1,0 +1,14 @@
+# 8 s segments, 30 fps, with the representations of testpic4_8s:
+# 300 and 600 kbps at 640x360, and 1200 kbps at 960x540.
+name: ladder_8s
+duration: 120
+segmentDuration: 8
+video:
+  fps: 30
+  representations:
+    - {id: V300, codec: avc, width: 640, height: 360, bitrate: 300}
+    - {id: V600, codec: avc, width: 640, height: 360, bitrate: 600}
+    - {id: V1200, codec: avc, width: 960, height: 540, bitrate: 1200}
+audio:
+  representations:
+    - {id: A48, codec: aac, bitrate: 48, lang: en}
