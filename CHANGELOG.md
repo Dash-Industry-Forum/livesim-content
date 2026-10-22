@@ -7,10 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-10-22
+
 ### Added
 
 - `tools/contentgen`: generates test assets from a YAML config, with AVC/HEVC/AV1 video, AAC/Opus/AC-3 audio, and `$Number$` or SegmentTimeline MPDs, also at 29.97 and 59.94 fps
 - `tools/elstpatch`: checks where a representation's presentation starts and fixes it with a CMAF edit list in `init.mp4`
+
+### Changed
+
+- Representation data files (`*_data.json.gz`) regenerated in livesim2 format version 2, which adds the SAP grid of video,
+  so newer livesim2 versions do not rebuild them at start. livesim2 v1.14.0 still reads them.
 
 ### Removed
 
@@ -33,5 +40,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated ProgramInformation
 - Updated compressed representation data files (json.gz) to livesim2 v 1.2.0.
 
-[Unreleased]: https://github.com/Dash-Industry-Forum/livesim-content/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/Dash-Industry-Forum/livesim-content/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/Dash-Industry-Forum/livesim-content/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/Dash-Industry-Forum/livesim-content/releases/tag/v1.0.0
