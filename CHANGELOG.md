@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `tools/contentgen`: generates test assets from a YAML config, with AVC/HEVC/AV1 video, AAC/Opus/AC-3 audio, and `$Number$` or SegmentTimeline MPDs, also at 29.97 and 59.94 fps
 - `tools/elstpatch`: checks where a representation's presentation starts and fixes it with a CMAF edit list in `init.mp4`
 
 ### Removed

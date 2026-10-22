@@ -1,7 +1,8 @@
 # livesim-content
 
 This repo contains test content used by the DASH-IF online
-service [livesim2][livesim2].
+service [livesim2][livesim2]. You can also generate your own
+test content locally, see [Generate your own assets](#generate-your-own-assets).
 
 For easy download, a mixed storage format is used
 where each representation
@@ -97,6 +98,58 @@ been updated and run the unpack tool on that specific directory.
 The asset should now be in a format that can be read and processed by `livesim2`,
 provided that it is in a subdirectory under `--vodroot`.
 
+## Generate your own assets
+
+Instead of downloading assets, you can generate test assets locally with
+[`tools/contentgen`](tools/contentgen/README.md), at any duration, from a small
+YAML config. It needs Go and an ffmpeg with the encoders used (Homebrew's
+`ffmpeg-full` has all of them). It supports:
+
+* AVC, HEVC and AV1 video, optionally with B-frames (with an edit list so
+  that the presentation starts at 0)
+* AAC, Opus and AC-3 audio, with the encoder priming handled
+* multi-bitrate content: video and audio representations that share an
+  Adaptation Set, so that a player can switch between them
+* integer frame rates and 29.97, 59.94 and 23.976 fps
+* `$Number$` with `@duration`, SegmentTimeline with `$Time$`, and
+  SegmentTimeline with `$Number$` (which livesim2 does not read yet,
+  [livesim2 #152](https://github.com/Dash-Industry-Forum/livesim2/issues/152))
+
+The video is the ffmpeg `testsrc2` pattern, complex enough that the encoders
+use their bitrate. On it are burned-in labels (codec, bitrate, resolution,
+frame rate, representation, segment and frame number), a large timecode, the
+DASH-IF logotype, and a white square that flashes at every second together
+with a beep in the audio. The `@bandwidth` values are computed from the
+segments.
+
+These example configs are in [`tools/contentgen/examples`](tools/contentgen/examples).
+They are about two minutes long, and `-duration` sets another length:
+
+| Config | Content |
+| ------ | ------- |
+| `ladder_2s.yaml` | AVC at 400, 800 and 1600 kbps (360p to 720p), AAC at 64 and 128 kbps, 2 s segments |
+| `two_languages_2s.yaml` | English audio with a monotonic beep (main) and Swedish audio with rising tones, in separate Adaptation Sets |
+| `codecs_2s.yaml` | AVC, HEVC and AV1 ladders, and AAC, Opus and AC-3, with SegmentTimeline and `$Time$` |
+| `bframes_2s.yaml` | AVC and HEVC with B-frames at 30 fps, and AAC with its priming in an edit list |
+| `timeline_number_2s.yaml` | SegmentTimeline with `$Number$` |
+| `ladder_8s.yaml` | 8 s segments, with the representations of `testpic4_8s` |
+| `ntsc_2s.yaml` | 29.97 fps with 2.002 s segments and a drop-frame timecode |
+| `ntsc60_2s.yaml` | 59.94 fps with 2.002 s segments |
+
+To generate an asset and serve it with livesim2:
+
+```sh
+> go -C tools/contentgen build
+> mkdir -p ~/vod/myasset
+> cp tools/contentgen/examples/ladder_2s.yaml ~/vod/myasset/contentgen.yaml
+> FFMPEG=/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg tools/contentgen/contentgen -config ~/vod/myasset/contentgen.yaml
+> livesim2 --vodroot ~/vod
+```
+
+The asset is then at `http://localhost:8888/livesim2/myasset/Manifest.mpd`.
+At 29.97 and 59.94 fps, durations that loop seamlessly are not whole seconds;
+`contentgen -config <config> -suggest 3600` lists the ones near an hour.
+
 ## Assets
 
 The assets available are:
@@ -161,6 +214,13 @@ The MPDs are:
 | Manifest600.mpd | same as Manifest.mpd but limited to 300kbps and 600kbps video | OK |
 
 ## Tools
+
+### contentgen
+
+`tools/contentgen` generates test assets from a YAML config, as described in
+[Generate your own assets](#generate-your-own-assets). See its
+[README](tools/contentgen/README.md) for the config, the options and the
+timing details.
 
 ### elstpatch
 
