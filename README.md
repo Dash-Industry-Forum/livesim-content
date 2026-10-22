@@ -41,10 +41,18 @@ On Mac, you can analogously run
 > brew install git-lfs
 ```
 
-After that, it should be fine to run
+After that, set up git-lfs once for your user account and clone the repo:
 
 ```sh
-> git clone VoD source for DASH-IF livesim2.git
+> git lfs install
+> git clone https://github.com/Dash-Industry-Forum/livesim-content.git
+```
+
+If the `.zip` files in the clone are small text files (LFS pointers) instead of
+archives, the LFS content was not downloaded. Fetch it from inside the repo with
+
+```sh
+> git lfs pull
 ```
 
 ### Unpacking the content
