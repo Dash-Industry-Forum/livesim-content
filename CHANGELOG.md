@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `tools/elstpatch`: checks where a representation's presentation starts and fixes it with a CMAF edit list in `init.mp4`
+
 ### Removed
 
 - testpic_2s/Manifest_avc3.mpd, since it defined the V300 Representation differently from the other MPDs of the asset,
@@ -14,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- testpic_2s and testpic_6s: edit lists in the video and audio `init.mp4` make the first picture start at time 0 and remove the AAC priming
 - README file mess
 - An extra backtick in testpic_2s/Manifest.mpd
 - The clone command in README, and how to set up and fetch LFS content
