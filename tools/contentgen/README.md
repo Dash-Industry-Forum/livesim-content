@@ -114,9 +114,19 @@ segment timing, which contentgen checks.
 * Each segment starts with a keyframe exactly on the segment grid, and the
   asset is an exact number of segments. Every video segment has the same
   structure.
-* With B-frames, the first picture has a composition time offset. An edit
-  list in `init.mp4` removes it, so the presentation starts at 0. AV1 has no
-  such offset, even in random-access mode.
+* Video needs no edit list. The composition time offsets are shifted so that
+  the first picture of a segment, which is first in decode order, has offset
+  0, so the earliest presentation time of every segment is its `tfdt`, and
+  the presentation starts at 0. With B-frames, the pictures that are
+  presented before a picture decoded earlier get negative offsets, in `trun`
+  version 1, as CMAF prefers. ffmpeg-based players show such video late by
+  the largest negative offset, since ffmpeg shifts the presentation times to
+  keep them after the decode times. AV1 has no reordering in the container,
+  even in random-access mode.
+* `trun` is version 0 when no offset is negative (audio, and video without
+  B-frames), since CMAF does not allow version 1 together with an edit list.
+* The video is converted to YUV with the BT.709 matrix, and the `colr` box of
+  the sample entry signals BT.709, as CMAF requires for HEVC.
 * Audio encoders add priming. With `priming: strip`, the whole priming frames
   are dropped and any rest (Opus 312, AC-3 256 samples) goes in an edit list.
   With `priming: elst`, all of it stays and is signalled with an edit list.
@@ -130,6 +140,9 @@ segment timing, which contentgen checks.
   `-suggest` lists the durations that work.
 * With SegmentTimeline, the times are presentation times after the edit list,
   as livesim2 expects. With `$Time$`, the segment files are named by them.
+  With an audio edit list, the first segment starts before 0, so it is
+  listed from 0 with only its presented part as duration, as in the CTA WAVE
+  content.
 * `@bandwidth` is the lowest rate for which the DASH rule holds: delivered at
   that rate from any segment start, playout can start after `minBufferTime`
   without stalling. Since livesim2 loops the asset, it is at least the

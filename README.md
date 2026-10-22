@@ -105,8 +105,8 @@ Instead of downloading assets, you can generate test assets locally with
 YAML config. It needs Go and an ffmpeg with the encoders used (Homebrew's
 `ffmpeg-full` has all of them). It supports:
 
-* AVC, HEVC and AV1 video, optionally with B-frames (with an edit list so
-  that the presentation starts at 0)
+* AVC, HEVC and AV1 video, optionally with B-frames (with negative
+  composition time offsets, so that the presentation starts at 0)
 * AAC, Opus and AC-3 audio, with the encoder priming handled
 * multi-bitrate content: video and audio representations that share an
   Adaptation Set, so that a player can switch between them

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `tools/contentgen`: B-frame video has negative composition time offsets instead of an edit list, `trun` is version 0
+  where possible, the video is BT.709 with a `colr` box, and `@maxSegmentDuration` is rounded up, so that the content
+  passes the CMAF checks
+
 ## [2.0.0] - 2026-10-22
 
 ### Added

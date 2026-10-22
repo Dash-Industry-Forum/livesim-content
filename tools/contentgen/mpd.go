@@ -35,7 +35,8 @@ func writeMPD(c *Config, reps []*repResult, path string) error {
 			maxSeg = max(maxSeg, float64(s.mpdDur)/float64(r.pkg.timescale))
 		}
 	}
-	mpd.MaxSegmentDuration = m.Seconds2DurPtrFloat64(maxSeg)
+	// Rounded up to whole milliseconds, so that no segment is longer.
+	mpd.MaxSegmentDuration = m.Seconds2DurPtrFloat64(math.Ceil(maxSeg*1000) / 1000)
 	mpd.ProgramInformation = []*m.ProgramInformationType{{
 		MoreInformationURL: "https://github.com/Dash-Industry-Forum/livesim-content",
 		Title:              c.Title,
