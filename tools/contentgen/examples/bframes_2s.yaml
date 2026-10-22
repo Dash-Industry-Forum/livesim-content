@@ -1,0 +1,17 @@
+# AVC and HEVC with B-frames. The first picture then has a composition time
+# offset, which an edit list in init.mp4 removes, so that the presentation
+# starts at 0. Audio keeps its encoder priming, signalled with an edit list.
+name: bframes_2s
+duration: 120
+segmentDuration: 2
+addressing: timeline-time
+video:
+  fps: 30
+  bframes: 3
+  representations:
+    - {id: Vavc, codec: avc, width: 1280, height: 720, bitrate: 1500}
+    - {id: Vhevc, codec: hevc, width: 1280, height: 720, bitrate: 1000}
+audio:
+  priming: elst
+  representations:
+    - {id: Aaac, codec: aac, bitrate: 128, lang: en}

@@ -1,0 +1,16 @@
+# 29.97 fps (30000/1001) with 2.002 s segments of 60 frames. A whole number
+# of AAC frames needs a multiple of 32 segments (64.064 s), so the asset is
+# 128.128 s. `contentgen -config ntsc_2s.yaml -suggest 3600` lists other
+# durations. livesim2 loops it seamlessly, and its time subtitles
+# (e.g. /timesubsstpp_en/) give the absolute time on top of the loop.
+name: ntsc_2s
+duration: 128.128         # 64 segments
+segmentDuration: 2.002
+video:
+  fps: 29.97              # or 30000/1001
+  representations:
+    - {id: V400, codec: avc, width: 640, height: 360, bitrate: 400}
+    - {id: V1600, codec: avc, width: 1280, height: 720, bitrate: 1600}
+audio:
+  representations:
+    - {id: A128, codec: aac, bitrate: 128, lang: en}

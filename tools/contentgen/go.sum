@@ -1,0 +1,9 @@
+github.com/Eyevinn/dash-mpd v0.19.0 h1:F9jvM375LKMZKPqa8VM9oD1Rsf8kvR3G6UGvL9ypJx0=
+github.com/Eyevinn/dash-mpd v0.19.0/go.mod h1:JcVboFRgbxl5gK/ppYzS5z35VsRi8wbwiZIOpDy6zmA=
+github.com/Eyevinn/mp4ff v0.60.0 h1:gtxm4/NTTZ0805f0+nHKIdyps6txbjywsgTjwXbnJ6M=
+github.com/Eyevinn/mp4ff v0.60.0/go.mod h1:97zsDIJUiDTYqKpqq/b1K9foamxXmvsgE4GdPrPK3ks=
+github.com/barkimedes/go-deepcopy v0.0.0-20220514131651-17c30cfc62df h1:GSoSVRLoBaFpOOds6QyY1L8AX7uoY+Ln3BHc22W40X0=
+github.com/barkimedes/go-deepcopy v0.0.0-20220514131651-17c30cfc62df/go.mod h1:hiVxq5OP2bUGBRNS3Z/bt/reCLFNbdcST6gISi1fiOM=
+gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
+gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
+gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=

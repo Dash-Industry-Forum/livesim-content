@@ -1,0 +1,13 @@
+# 59.94 fps (60000/1001) with 2.002 s segments of 120 frames. The timecode is
+# a SMPTE drop-frame timecode. Same durations as ntsc_2s.yaml.
+name: ntsc60_2s
+duration: 128.128         # 64 segments
+segmentDuration: 2.002
+video:
+  fps: 59.94              # or 60000/1001
+  representations:
+    - {id: V3000, codec: avc, width: 1280, height: 720, bitrate: 3000}
+    - {id: V6000, codec: avc, width: 1920, height: 1080, bitrate: 6000}
+audio:
+  representations:
+    - {id: A128, codec: aac, bitrate: 128, lang: en}
