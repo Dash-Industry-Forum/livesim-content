@@ -55,6 +55,19 @@ archives, the LFS content was not downloaded. Fetch it from inside the repo with
 > git lfs pull
 ```
 
+The Git LFS downloads count against a limited monthly budget of the DASH-IF
+organization. If it is used up, the clone has only pointer files and
+`git lfs pull` fails with "This repository exceeded its LFS budget".
+Then try again next month, or open an issue.
+
+To save bandwidth, you can fetch only the assets you need, e.g.
+
+```sh
+> GIT_LFS_SKIP_SMUDGE=1 git clone https://github.com/Dash-Industry-Forum/livesim-content.git
+> cd livesim-content
+> git lfs pull --include "testpic_2s/*"
+```
+
 ### Unpacking the content
 
 You finally need to unpack the content.
@@ -135,13 +148,18 @@ The MPDs are:
 
 A 1-hour long asset with 8s segments with 30fps video at three bitrates (300kbps, 600kbps, and 1200kbps) and MPDs that contain different subsets.
 
+**Note:** the bitrate shown in the video is wrong for two of the representations:
+V600 shows "300 kbit/s" and V1200 shows "600 kbit/s". The actual bitrates, and
+the bandwidth values in the MPDs, are right. The asset should be replaced by a
+correctly labeled one later.
+
 The MPDs are:
 
 | Name | Specifics  | livesim2 status |
 | ---- | ---------- | --------------- |  
 | Manifest.mpd | base simple MPD using SegmentTemplate with `$Number$` and all bitrates | OK |
-| Manifest_300.mpd | same as Manifest.mpd but limited to 300kbps video | OK |
-| Manifest_600.mpd | same as Manifest.mpd but limited to 300kbps and 600kbs video | OK |
+| Manifest300.mpd | same as Manifest.mpd but limited to 300kbps video | OK |
+| Manifest600.mpd | same as Manifest.mpd but limited to 300kbps and 600kbps video | OK |
 
 [livesim]: https://livesim.dashif.org
 [livesim2]: https://github.com/Dash-Industry-Forum/livesim2
