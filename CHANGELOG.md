@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The assets that livesim2.dashif.org serves but the repo lacked: `ads`, `dolby-ac4`, `mpeg-h_one-day-in-berlin`,
   `testpic_2s_av1`, `testpic_2s_low_delay`, `WAVE` and `testpic_2s/webvtt_subs.mpd`. The `dolby-ac4` duration and
   the `WAVE/av` codecs are fixed.
+- `tools/check_assets.sh`: checks all unpacked assets with dashcheck and reports findings that are not in
+  `tools/check_assets_known.txt`
 
 ### Changed
 

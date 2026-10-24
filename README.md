@@ -377,6 +377,25 @@ notices.
 
 ## Tools
 
+### check_assets.sh
+
+`tools/check_assets.sh` checks the MPDs of all unpacked assets and all their
+segments with [dashcheck][dashcheck]. It compares the errors and warnings with
+the known ones in `tools/check_assets_known.txt`, which are documented under
+[Assets](#assets). It exits with 1 if there are new findings, and lists known
+findings that are gone. Run it by hand after changing content; a CI job would
+download all the LFS content on every run.
+
+```sh
+> go install github.com/tobbee/dashcheck/cmd/dashcheck@latest
+> ./unpack_all.sh
+> tools/check_assets.sh
+```
+
+It takes about 20 s for all assets. `testrotate_2s` is only checked when it has
+been generated. After fixing or accepting findings, `tools/check_assets.sh
+-update` writes the current findings to the known list.
+
 ### contentgen
 
 `tools/contentgen` generates test assets from a YAML config, as described in
@@ -419,6 +438,7 @@ of the timeline. After patching, update the `init.mp4` entry in the
 representation `.zip` file (e.g. `cd testpic_2s && zip V300.zip V300/init.mp4`),
 and regenerate the representation data with `livesim2 --writerepdata`.
 
+[dashcheck]: https://github.com/tobbee/dashcheck
 [livesim]: https://livesim.dashif.org
 [livesim2]: https://github.com/Dash-Industry-Forum/livesim2
 [git-lfs]: https://git-lfs.com
