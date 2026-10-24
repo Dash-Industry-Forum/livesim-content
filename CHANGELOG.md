@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `testrotate_2s/gen.sh`: generates the testrotate_2s asset (rotating logo, AVC at 400/800/1200 kbps, two AAC beep
+  tracks, 2 s segments). Only the generator is in the repo, not the media.
+
 ### Fixed
 
 - `tools/contentgen`: B-frame video has negative composition time offsets instead of an edit list, `trun` is version 0

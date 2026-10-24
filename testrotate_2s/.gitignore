@@ -1,0 +1,11 @@
+# testrotate_2s ships only the generator (gen.sh, audioseg/, resources/).
+# The actual DASH content is produced locally by gen.sh and is NOT committed.
+/V1200/
+/V800/
+/V400/
+/Amon/
+/Asca/
+/Manifest.mpd
+/*_data.json
+/*_data.json.gz
+/.tmp/

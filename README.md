@@ -213,6 +213,45 @@ The MPDs are:
 | Manifest300.mpd | same as Manifest.mpd but limited to 300kbps video | OK |
 | Manifest600.mpd | same as Manifest.mpd but limited to 300kbps and 600kbps video | OK |
 
+### testrotate_2s
+
+A 1-hour asset with 2s segments, based on the test content of
+[moqlivemock](https://github.com/Eyevinn/moqlivemock) (`utils/contentgen`).
+Unlike the other assets, the media is not stored in the repo. Only the
+generator is: `testrotate_2s/gen.sh`, the Go tool `audioseg` and the fonts
+and logo in `resources`. Run the generator to make the content locally.
+
+The video is the ffmpeg `testsrc` pattern with a logo that turns once every
+10 s. On it are the bitrate, the resolution, the frame number and a large
+`MM:SS;FF` timecode. The video is AVC at 25fps with a closed 2s GOP and no
+B-frames. The audio is two AAC-LC tracks (64 kbps CBR, 48kHz stereo). The
+encoder priming is removed, so there is no edit list, and every audio segment
+starts with the first AAC frame at or after the video segment start.
+
+| Rep | Type | Details |
+| --- | ---- | ------- |
+| V1200 | video | 1280x720, 1200 kbps (orange text) |
+| V800 | video | 960x540, 800 kbps (yellow text) |
+| V400 | video | 640x360, 400 kbps (white text) |
+| Amon | audio | 880 Hz beep every second (lang `mon`) |
+| Asca | audio | C-major scale, one note per second (lang `sca`) |
+
+The generator also writes the only MPD, `Manifest.mpd`.
+
+`gen.sh` needs Go, [`mp4ff-pslister`][mp4ff] on the `PATH`, an ffmpeg with
+`libx264` and `drawtext`, and an ffmpeg with `libfdk_aac`. Few builds have
+both, so the two can be set separately (default: `ffmpeg` on the `PATH`):
+
+```sh
+> cd testrotate_2s
+> FFMPEG=/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg FFMPEG_AAC=/path/to/ffmpeg-with-libfdk_aac ./gen.sh
+```
+
+The default duration is 3600 s; give another one in seconds, e.g.
+`./gen.sh 120`. Use a multiple of 8 s, so that the audio is a whole number of
+AAC frames (8 s is 375 frames at 48kHz). `gen.sh` replaces the representation
+directories and `Manifest.mpd` of an earlier run.
+
 ## Tools
 
 ### contentgen
