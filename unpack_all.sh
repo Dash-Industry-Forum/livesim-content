@@ -1,10 +1,5 @@
 #!/bin/sh
 
-# unzip all .zip files in all directories
-for d in */; do
-    cd "$d"
-    for f in *.zip; do
-        unzip "$f"
-    done
-    cd ..
-done
+# unzip all .zip files at any depth, each in its own directory
+find . -name .git -prune -o -name '*.zip' -type f \
+    -exec sh -c 'cd "$(dirname "$1")" && unzip "$(basename "$1")"' sh {} \;

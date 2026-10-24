@@ -1,0 +1,22 @@
+{
+  "train_ad": {
+    "title": "Train Journey",
+    "interests": ["travel"]
+  },
+  "namibia_ad": {
+    "title": "Namibia",
+    "interests": ["travel"]
+  },
+  "namibia_safari_ad": {
+    "title": "Namibia Safari",
+    "interests": ["travel", "safari"]
+  },
+  "gotland_runt_ad": {
+    "title": "Gotland Runt Sailing Race",
+    "interests": ["sailing", "boats"]
+  },
+  "stockholm_sailing_ad": {
+    "title": "Sailing in Stockholm",
+    "interests": ["sailing", "boats"]
+  }
+}

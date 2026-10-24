@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `testrotate_2s/gen.sh`: generates the testrotate_2s asset (rotating logo, AVC at 400/800/1200 kbps, two AAC beep
   tracks, 2 s segments). Only the generator is in the repo, not the media.
+- The assets that livesim2.dashif.org serves but the repo lacked: `ads`, `dolby-ac4`, `mpeg-h_one-day-in-berlin`,
+  `testpic_2s_av1`, `testpic_2s_low_delay`, `WAVE` and `testpic_2s/webvtt_subs.mpd`. The `dolby-ac4` duration and
+  the `WAVE/av` codecs are fixed.
+
+### Changed
+
+- `unpack_all.sh` unpacks zip files at any depth, as the new assets need
 
 ### Fixed
 
