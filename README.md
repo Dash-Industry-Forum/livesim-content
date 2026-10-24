@@ -73,13 +73,13 @@ To save bandwidth, you can fetch only the assets you need, e.g.
 
 You finally need to unpack the content.
 
-ALl content can be unzipped using the top-level command
+All content can be unzipped using the top-level command
 
 ```sh
 > unpack_all.sh
 ```
 
-that iterates through the directories and unzips all zip files.
+that finds the zip files at any depth and unzips each one in its own directory.
 
 You can also unpack a single asset like `testpic_2s` using
 
@@ -88,7 +88,8 @@ You can also unpack a single asset like `testpic_2s` using
 > ../tools/unpack.sh
 ```
 
-to unpack all the zip-files.
+to unpack all the zip-files. Where the representations are in a subdirectory,
+run it there, e.g. in `ads/train_ad`.
 If you want to remove the `.zip` files, run `tools/unpack_and_clean.sh` instead.
 
 You can remove the zip-files, but it may be good to keep them so that an update
@@ -154,6 +155,54 @@ At 29.97 and 59.94 fps, durations that loop seamlessly are not whole seconds;
 
 The assets available are:
 
+### ads
+
+Five 10s ads for the server-guided ad insertion (SGAI) of livesim2, each
+with its own `manifest.mpd`. They are made from the repo maintainer's own
+video recordings, and some have AI-generated elements. Nothing is copied from
+other sources.
+
+Each ad has 30fps AVC video at 1280x720 (V4, about 4 Mbps), 960x540 (V2,
+about 2 Mbps) and 640x360 (V1, about 1 Mbps), and AAC audio (A, about
+97 kbps), with 2s segments. `ads/ads.json` gives each ad a title and the
+interests that livesim2 uses to choose ads.
+
+| Directory | Title |
+| --------- | ----- |
+| ads/train_ad | Train Journey |
+| ads/namibia_ad | Namibia |
+| ads/namibia_safari_ad | Namibia Safari |
+| ads/gotland_runt_ad | Gotland Runt Sailing Race |
+| ads/stockholm_sailing_ad | Sailing in Stockholm |
+
+### dolby-ac4
+
+One 2.002s segment of 1080p AVC video at 29.97fps with AC-4 5.1 audio, in
+`dolby-ac4/2997fps`. It is based on the Dolby DASH-IF test vector
+`Living_Room_1080p_20_96k_2997fps`, with the segment adjusted because the
+original was not fully correct. livesim2 has the same segments in its test
+assets.
+
+### mpeg-h_one-day-in-berlin
+
+The "One Day in Berlin" MPEG-H Audio demo, 1:57 long with 1.92s segments.
+The video is HEVC Main 10 at 1920x1080, 50fps (about 9.6 Mbps), and the audio
+is MPEG-H 3D Audio (`mhm1`, about 960 kbps) with three Preselections.
+
+This is a custom version that [Fraunhofer IIS](https://www.iis.fraunhofer.de/en/ff/amm/broadcast-streaming/mpegh.html)
+made for use in livesim2. The original demo and more MPEG-H test material are at
+[mpegh.com](https://mpegh.com/academy/testing-and-qa/).
+Copyright (c) 2023 Fraunhofer-Gesellschaft zur Förderung der angewandten
+Forschung e.V., licensed under
+[CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/).
+
+The segments are not in Representation subdirectories, so each zip file
+unpacks into the asset directory itself.
+
+**Known issue:** in the MPD, the `AudioChannelConfiguration` of the audio
+Adaptation Set comes after the `SegmentTemplate`, which the DASH schema does
+not allow. The MPD is kept as Fraunhofer IIS made it.
+
 ### testpic_2s
 
 A 1-hour long asset with 2s segments with 30fps video and many subtitle options.
@@ -182,7 +231,41 @@ subtitle track.
 | ---- | ---------- | --------------- | 
 | img_subs.mpd | Manifest.mpd extended with image subtitles in side-loaded TTML format (not supported by livesim) | N/A |
 | ttml_subs.mpd | Manifest.mpd extended with side-loaded TTML files (1h) (not supported by livesim) | N/A |
+| webvtt_subs.mpd | Manifest.mpd extended with a side-loaded WebVTT file (1h) (not supported by livesim) | N/A |
 | imsc1_img.mpd | Manifest.mpd with properly signaled IMSC-1 stpp image subtitles. Only one minute | Does not play |
+
+### testpic_2s_av1
+
+A 10s asset with 2s segments for AV1. The video is AV1 at 1280x720, 25fps,
+at 400 kbps (`av1`) and 600 kbps (`av1_600`). The audio (`A48`) is AAC at
+128 kbps with a C-major scale, one note per second, and the encoder priming
+removed. The content was made with the tools in
+[moqlivemock](https://github.com/Eyevinn/moqlivemock) (`utils/contentgen`):
+the ffmpeg `testsrc` pattern with a rotating logo and the codec, bitrate,
+resolution, time and frame number.
+
+The AV1 representations use 2-4% more than their `@bandwidth`.
+
+### testpic_2s_low_delay
+
+An 8s asset with 2s segments, added together with the L3D-DASH (low-delay)
+support of livesim2.
+The video is the ffmpeg SMPTE HD color bars with the resolution, a timecode
+and the bitrate, in AVC at 30fps with B-frames. Two Adaptation Sets have the
+same ladder at 1920x1080, 1280x720 and 640x360: `1080`, `720` and `360` have
+a 2s GOP, and `LD_1080`, `LD_720` and `LD_360` ("Low Delay" in the picture)
+a GOP of 6 frames (0.2s). The audio (`A48` and `LD_A48`) is the first 8s of
+the `testpic_2s` audio.
+
+Known issues:
+
+* The audio has the 1024 samples of AAC priming of `testpic_2s/A48`, but no
+  edit list. testpic_2s got one in v2.0.0. It is left out here until
+  livesim2.dashif.org runs a livesim2 version that handles audio edit lists in
+  all modes.
+* The color bars are easy to encode, so the 2s-GOP representations use only
+  about a third of their `@bandwidth` (`1080` uses 681 kbps of 2000 kbps). The
+  audio uses about 53 kbps, more than its `@bandwidth` of 48 kbps.
 
 ### testpic_6s
 
@@ -251,6 +334,29 @@ The default duration is 3600 s; give another one in seconds, e.g.
 `./gen.sh 120`. Use a multiple of 8 s, so that the audio is a whole number of
 AAC frames (8 s is 375 frames at 48kHz). `gen.sh` replaces the representation
 directories and `Manifest.mpd` of an earlier run.
+
+### WAVE
+
+Content from the [CTA WAVE test content](https://github.com/cta-wave/Test-Content),
+1920x1080 AVC video with 2s (or 2.002s) segments:
+
+| MPD | Content |
+| --- | ------- |
+| WAVE/vectors/cfhd_sets/12.5_25_50/t1/2022-10-17/stream.mpd | Croatia at 25fps, test vector 1, 30s |
+| WAVE/vectors/cfhd_sets/14.985_29.97_59.94/t1/2022-10-17/stream.mpd | Tears of Steel at 29.97fps, test vector 1, 28s |
+| WAVE/av/combined.mpd | Croatia at 25fps, test vector 3, 8s, with AAC audio that has an edit list (2048 samples of priming) |
+
+The two test vectors are copies of the ones at
+`https://dash.akamaized.net/WAVE/vectors/`. In `combined.mpd`, the video codecs
+are corrected from `avc1` to `avc3`, as in the sample entries.
+
+Croatia (2019) is credited to EBU and Tears of Steel (2012) to the Blender
+Institute (Ton Roosendaal and Ian Hubert). The Consumer Technology Association
+(CTA) uses and licenses them under
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) and
+[CC BY 3.0](https://creativecommons.org/licenses/by/3.0/), respectively,
+annotated, encoded and compressed from the original. The MPDs have the full
+notices.
 
 ## Tools
 
