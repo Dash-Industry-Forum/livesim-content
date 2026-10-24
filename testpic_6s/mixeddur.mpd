@@ -13,8 +13,8 @@
          </Representation>
       </AdaptationSet>
       <AdaptationSet contentType="video" mimeType="video/mp4" mobitv:qualityLevel="SD" segmentAlignment="true" startWithSAP="1" par="16:9" minWidth="640" maxWidth="640" minHeight="360" maxHeight="360" maxFrameRate="30">
-	 <BaseURL>../testpic_2s/</BaseURL>
          <Role schemeIdUri="urn:mpeg:dash:role:2011" value="main"/>
+         <BaseURL>../testpic_2s/</BaseURL>
          <SegmentTemplate startNumber="1" initialization="$RepresentationID$/init.mp4" duration="2" media="$RepresentationID$/$Number$.m4s"/>
          <Representation id="V300" codecs="avc1.64001e" bandwidth="300000" width="640" height="360" frameRate="30" sar="1:1"/>
       </AdaptationSet>

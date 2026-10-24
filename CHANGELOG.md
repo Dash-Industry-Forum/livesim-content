@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `tools/contentgen`: B-frame video has negative composition time offsets instead of an edit list, `trun` is version 0
   where possible, the video is BT.709 with a `colr` box, and `@maxSegmentDuration` is rounded up, so that the content
   passes the CMAF checks
+- MPDs that failed dashcheck: element order in `testpic_6s/mixeddur.mpd` and in the MPD of `testrotate_2s/gen.sh`,
+  the language tag in `testpic_2s/img_subs.mpd`, and the missing DVB live profile in `testpic_2s/Manifest_dvb.mpd`
 
 ## [2.0.0] - 2026-10-22
 

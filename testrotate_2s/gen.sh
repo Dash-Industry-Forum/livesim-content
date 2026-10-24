@@ -233,16 +233,16 @@ cat <<EOF
    </ProgramInformation>
    <Period id="P0" start="PT0S">
       <AdaptationSet contentType="audio" mimeType="audio/mp4" lang="mon" segmentAlignment="true" startWithSAP="1">
-         <Role schemeIdUri="urn:mpeg:dash:role:2011" value="main"/>
          <Label>Monotonic 880Hz beep</Label>
+         <Role schemeIdUri="urn:mpeg:dash:role:2011" value="main"/>
          <SegmentTemplate startNumber="1" initialization="\$RepresentationID\$/init.mp4" duration="${SEG}" media="\$RepresentationID\$/\$Number\$.m4s"/>
          <Representation id="Amon" codecs="mp4a.40.2" bandwidth="${AMON_BW}" audioSamplingRate="48000">
             <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="2"/>
          </Representation>
       </AdaptationSet>
       <AdaptationSet contentType="audio" mimeType="audio/mp4" lang="sca" segmentAlignment="true" startWithSAP="1">
-         <Role schemeIdUri="urn:mpeg:dash:role:2011" value="alternate"/>
          <Label>C-major scale</Label>
+         <Role schemeIdUri="urn:mpeg:dash:role:2011" value="alternate"/>
          <SegmentTemplate startNumber="1" initialization="\$RepresentationID\$/init.mp4" duration="${SEG}" media="\$RepresentationID\$/\$Number\$.m4s"/>
          <Representation id="Asca" codecs="mp4a.40.2" bandwidth="${ASCA_BW}" audioSamplingRate="48000">
             <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="2"/>
