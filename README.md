@@ -80,6 +80,9 @@ All content can be unzipped using the top-level command
 ```
 
 that finds the zip files at any depth and unzips each one in its own directory.
+It then runs the `postunpack.sh` script of any asset that has one, which
+makes files that are not stored in the repo, like the fixed MPD of
+`mpeg-h_one-day-in-berlin`.
 
 You can also unpack a single asset like `testpic_2s` using
 
@@ -88,8 +91,9 @@ You can also unpack a single asset like `testpic_2s` using
 > ../tools/unpack.sh
 ```
 
-to unpack all the zip-files. Where the representations are in a subdirectory,
-run it there, e.g. in `ads/train_ad`.
+to unpack all the zip-files and run the asset's `postunpack.sh`, if any.
+Where the representations are in a subdirectory, run it there, e.g. in
+`ads/train_ad`.
 If you want to remove the `.zip` files, run `tools/unpack_and_clean.sh` instead.
 
 You can remove the zip-files, but it may be good to keep them so that an update
@@ -199,9 +203,11 @@ Forschung e.V., licensed under
 The segments are not in Representation subdirectories, so each zip file
 unpacks into the asset directory itself.
 
-**Known issue:** in the MPD, the `AudioChannelConfiguration` of the audio
-Adaptation Set comes after the `SegmentTemplate`, which the DASH schema does
-not allow. The MPD is kept as Fraunhofer IIS made it.
+The repo has the MPD as Fraunhofer IIS made it, in `manifest.mpd.orig`. In it,
+the `AudioChannelConfiguration` of the audio Adaptation Set comes after the
+`SegmentTemplate`, which the DASH schema does not allow. When unpacking,
+`postunpack.sh` writes `manifest.mpd` with that element moved, so run
+`unpack_all.sh` or `tools/unpack.sh` to get the MPD.
 
 ### testpic_2s
 
@@ -234,16 +240,14 @@ subtitle track.
 | webvtt_subs.mpd | Manifest.mpd extended with a side-loaded WebVTT file (1h) (not supported by livesim) | N/A |
 | imsc1_img.mpd | Manifest.mpd with properly signaled IMSC-1 stpp image subtitles. Only one minute | Does not play |
 
+The side-loaded subtitle MPDs (`img_subs.mpd`, `ttml_subs.mpd` and
+`webvtt_subs.mpd`) signal the full profile, since their subtitles are single
+files without a `SegmentTemplate`, which the live profile does not allow.
+
 Known issues:
 
-* The init segments of the stpp subtitles `S1`, `S1_one_region`,
-  `S1_two_regions` and `S1_two_regions_multi_color` have a `trex` box for
-  track 1, but the track (`tkhd`) and the segments (`tfhd`) use track ID 3.
-  This affects `cea608_and_segs.mpd`, `Manifest_stpp.mpd` and the three
-  `stpp_*.mpd`.
-* The side-loaded subtitle MPDs (`img_subs.mpd`, `ttml_subs.mpd` and
-  `webvtt_subs.mpd`) signal the live profile, but their subtitles are single
-  files without a `SegmentTemplate`, which that profile does not allow.
+* The subtitle Representations of the side-loaded subtitle MPDs have no
+  `@codecs`.
 * `Manifest_dvb.mpd` uses `avc1` sample entries, while DVB-DASH recommends
   `avc3`.
 

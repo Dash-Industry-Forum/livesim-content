@@ -17,7 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `unpack_all.sh` unpacks zip files at any depth, as the new assets need
+- `unpack_all.sh` unpacks zip files at any depth, as the new assets need. It, `tools/unpack.sh` and
+  `tools/unpack_and_clean.sh` then run the asset's `postunpack.sh`, if any.
 
 ### Fixed
 
@@ -26,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   passes the CMAF checks
 - MPDs that failed dashcheck: element order in `testpic_6s/mixeddur.mpd` and in the MPD of `testrotate_2s/gen.sh`,
   the language tag in `testpic_2s/img_subs.mpd`, and the missing DVB live profile in `testpic_2s/Manifest_dvb.mpd`
+- dashcheck errors in content: the `trex` track ID of the testpic_2s `S1*` subtitle init segments, the profile of the
+  side-loaded subtitle MPDs (full instead of live), and the MPEG-H MPD, which `postunpack.sh` fixes when unpacking
 
 ## [2.0.0] - 2026-10-22
 
