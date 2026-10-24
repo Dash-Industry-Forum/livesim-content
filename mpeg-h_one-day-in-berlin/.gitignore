@@ -1,0 +1,5 @@
+# Written by postunpack.sh from manifest.mpd.orig
+/manifest.mpd
+# Unpacked from the zip files
+/*.m4s
+/*_init.mp4
