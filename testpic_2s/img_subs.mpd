@@ -17,7 +17,7 @@
          <SegmentTemplate startNumber="1" initialization="$RepresentationID$/init.mp4" duration="2" media="$RepresentationID$/$Number$.m4s"/>
          <Representation id="V300" codecs="avc1.64001e" bandwidth="300000" width="640" height="360" frameRate="30" sar="1:1"/>
       </AdaptationSet>
-      <AdaptationSet contentType="text" mimeType="application/ttml+xml" segmentAlignment="true" lang="en_px">
+      <AdaptationSet contentType="text" mimeType="application/ttml+xml" segmentAlignment="true" lang="en-px">
          <Role schemeIdUri="urn:mpeg:dash:role:2011" value="subtitle"/>
          <Representation id="subs_reg_px" bandwidth="1000">
              <BaseURL>img_subs_region_px.ttml</BaseURL>

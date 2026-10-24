@@ -234,6 +234,19 @@ subtitle track.
 | webvtt_subs.mpd | Manifest.mpd extended with a side-loaded WebVTT file (1h) (not supported by livesim) | N/A |
 | imsc1_img.mpd | Manifest.mpd with properly signaled IMSC-1 stpp image subtitles. Only one minute | Does not play |
 
+Known issues:
+
+* The init segments of the stpp subtitles `S1`, `S1_one_region`,
+  `S1_two_regions` and `S1_two_regions_multi_color` have a `trex` box for
+  track 1, but the track (`tkhd`) and the segments (`tfhd`) use track ID 3.
+  This affects `cea608_and_segs.mpd`, `Manifest_stpp.mpd` and the three
+  `stpp_*.mpd`.
+* The side-loaded subtitle MPDs (`img_subs.mpd`, `ttml_subs.mpd` and
+  `webvtt_subs.mpd`) signal the live profile, but their subtitles are single
+  files without a `SegmentTemplate`, which that profile does not allow.
+* `Manifest_dvb.mpd` uses `avc1` sample entries, while DVB-DASH recommends
+  `avc3`.
+
 ### testpic_2s_av1
 
 A 10s asset with 2s segments for AV1. The video is AV1 at 1280x720, 25fps,
