@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-10-27
+
 ### Added
 
 - `testrotate_2s/gen.sh`: generates the testrotate_2s asset (rotating logo, AVC at 400/800/1200 kbps, two AAC beep
@@ -22,6 +24,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `unpack_all.sh` unpacks zip files at any depth, as the new assets need. It, `tools/unpack.sh` and
   `tools/unpack_and_clean.sh` then run the asset's `postunpack.sh`, if any.
 
+### Removed
+
+- `V300/init_avc3.mp4` (and its `~` backup) from `testpic_2s/V300.zip`, an outdated avc3 init left from
+  `Manifest_avc3.mpd`; the livesim2 URL option `inbandps_1` gives avc3
+
 ### Fixed
 
 - `tools/contentgen`: B-frame video has negative composition time offsets instead of an edit list, `trun` is version 0
@@ -31,11 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the language tag in `testpic_2s/img_subs.mpd`, and the missing DVB live profile in `testpic_2s/Manifest_dvb.mpd`
 - dashcheck errors in content: the `trex` track ID of the testpic_2s `S1*` subtitle init segments, the profile of the
   side-loaded subtitle MPDs (full instead of live), and the MPEG-H MPD, which `postunpack.sh` fixes when unpacking
-
-### Removed
-
-- `V300/init_avc3.mp4` (and its `~` backup) from `testpic_2s/V300.zip`, an outdated avc3 init left from
-  `Manifest_avc3.mpd`; the livesim2 URL option `inbandps_1` gives avc3
 
 ## [2.0.0] - 2026-10-22
 
@@ -70,6 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated ProgramInformation
 - Updated compressed representation data files (json.gz) to livesim2 v 1.2.0.
 
-[Unreleased]: https://github.com/Dash-Industry-Forum/livesim-content/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/Dash-Industry-Forum/livesim-content/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/Dash-Industry-Forum/livesim-content/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/Dash-Industry-Forum/livesim-content/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/Dash-Industry-Forum/livesim-content/releases/tag/v1.0.0
