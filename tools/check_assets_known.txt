@@ -1,6 +1,3 @@
 # Known dashcheck findings of tools/check_assets.sh, documented in README.md.
 # One line per finding: MPD, severity, dashcheck rule.
 testpic_2s/Manifest_dvb.mpd warning SEG-DVB-AVC3
-testpic_2s/img_subs.mpd warning MPD-CODECS
-testpic_2s/ttml_subs.mpd warning MPD-CODECS
-testpic_2s/webvtt_subs.mpd warning MPD-CODECS

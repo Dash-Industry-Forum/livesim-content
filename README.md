@@ -242,14 +242,17 @@ subtitle track.
 
 The side-loaded subtitle MPDs (`img_subs.mpd`, `ttml_subs.mpd` and
 `webvtt_subs.mpd`) signal the full profile, since their subtitles are single
-files without a `SegmentTemplate`, which the live profile does not allow.
+files without a `SegmentTemplate`, which the live profile does not allow. Their
+subtitle Representations have no `@codecs`, since `@mimeType`
+(`application/ttml+xml` or `text/vtt`) identifies them, as in DASH-IF IOP 4.3
+6.4.5.
 
 Known issues:
 
-* The subtitle Representations of the side-loaded subtitle MPDs have no
-  `@codecs`.
 * `Manifest_dvb.mpd` uses `avc1` sample entries, while DVB-DASH recommends
-  `avc3`.
+  `avc3`. The V300 segments already carry their parameter sets in-band, so the
+  livesim2 URL option `inbandps_1` gives `avc3`, as in
+  `https://livesim2.dashif.org/livesim2/inbandps_1/testpic_2s/Manifest_dvb.mpd`.
 
 ### testpic_2s_av1
 
@@ -384,7 +387,8 @@ segments with [dashcheck][dashcheck]. It compares the errors and warnings with
 the known ones in `tools/check_assets_known.txt`, which are documented under
 [Assets](#assets). It exits with 1 if there are new findings, and lists known
 findings that are gone. Run it by hand after changing content; a CI job would
-download all the LFS content on every run.
+download all the LFS content on every run. The known findings are those of
+dashcheck v0.3.0.
 
 ```sh
 > go install github.com/tobbee/dashcheck/cmd/dashcheck@latest
