@@ -11,7 +11,7 @@
     <AudioChannelConfiguration schemeIdUri="urn:mpeg:dash:23003:3:audio_channel_configuration:2011" value="2"/>
    </Representation>
   </AdaptationSet>
-  <AdaptationSet contentType="video" segmentAlignment="true" maxWidth="1280" maxHeight="720" maxFrameRate="30" par="16:9">
+  <AdaptationSet contentType="video" segmentAlignment="true" maxWidth="640" maxHeight="360" maxFrameRate="30" par="16:9">
    <SegmentTemplate timescale="15360" media="$RepresentationID$/$Number$.m4s" startNumber="1" duration="122880" initialization="$RepresentationID$/init.mp4"/>
    <Representation id="V300" mimeType="video/mp4" codecs="avc1.64001e" width="640" height="360" frameRate="30" sar="1:1" startWithSAP="1" bandwidth="303780"/>
   </AdaptationSet>

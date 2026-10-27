@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `testpic4_8s`: the video `@maxWidth` and `@maxHeight` of all three MPDs said 1280x720, but the largest video is
+  960x540 in `Manifest.mpd` and 640x360 in `Manifest300.mpd` and `Manifest600.mpd`
+
 ## [2.1.0] - 2026-10-27
 
 ### Added
