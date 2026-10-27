@@ -32,6 +32,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - dashcheck errors in content: the `trex` track ID of the testpic_2s `S1*` subtitle init segments, the profile of the
   side-loaded subtitle MPDs (full instead of live), and the MPEG-H MPD, which `postunpack.sh` fixes when unpacking
 
+### Removed
+
+- `V300/init_avc3.mp4` (and its `~` backup) from `testpic_2s/V300.zip`, an outdated avc3 init left from
+  `Manifest_avc3.mpd`; the livesim2 URL option `inbandps_1` gives avc3
+
 ## [2.0.0] - 2026-10-22
 
 ### Added
