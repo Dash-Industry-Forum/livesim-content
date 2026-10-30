@@ -68,11 +68,12 @@ contentgen `Source`, are only overwritten with `-force`.
 
 The [examples](examples) directory has configs for an AVC ladder with two
 audio bitrates, two audio languages (a monotonic beep and rising tones), all
-codecs, B-frames, SegmentTimeline with `$Number$`, 8 s segments, and 29.97
-and 59.94 fps. They are about two minutes long; use
-`-duration` for other lengths. The asset does not have to be long to measure
-latency: the timecode, and livesim2's generated time subtitles, show the
-time.
+codecs, B-frames, SegmentTimeline with `$Number$`, and 29.97 and 59.94 fps.
+They are about two minutes long; use `-duration` for other lengths. The asset
+does not have to be long to measure latency: the timecode, and livesim2's
+generated time subtitles, show the time. The config of the `testpic4_8s`
+asset, [`testpic4_8s/contentgen.yaml`](../../testpic4_8s/contentgen.yaml), is
+a full example with 8 s segments, 1 s GOPs and extra MPDs.
 
 ## Config
 
@@ -85,8 +86,11 @@ addressing: number         # number | timeline-time | timeline-number
 startNumber: 1             # default 1
 minBufferTime: 2           # seconds, default the segment duration
 mpdName: Manifest.mpd      # default Manifest.mpd
+mpds:                      # optional extra MPDs with some of the representations
+  - {name: Manifest400.mpd, title: "...", representations: [V400, A128]}
 video:
   fps: 25                  # an integer, a ratio like 30000/1001, or 23.976, 29.97, 59.94
+  gop: 1                   # seconds between keyframes, default the segment duration
   bframes: 0               # 0 for I and P frames only
   noise: 0                 # temporal noise 0-50 for even harder content
   representations:
@@ -109,11 +113,17 @@ Give audio representations different labels to put them in separate
 Adaptation Sets. The representations of an Adaptation Set must have the same
 segment timing, which contentgen checks.
 
+The main MPD has all representations. Each entry in `mpds` writes another MPD
+with only the listed ones, for example a single bitrate, and its own title
+(default the asset title). `maxWidth` and `maxHeight` follow the
+representations of each MPD.
+
 ## Timing
 
 * Each segment starts with a keyframe exactly on the segment grid, and the
   asset is an exact number of segments. Every video segment has the same
-  structure.
+  structure. With `gop`, a segment has several closed GOPs; `gop` must divide
+  the segment duration into whole frames.
 * Video needs no edit list. The composition time offsets are shifted so that
   the first picture of a segment, which is first in decode order, has offset
   0, so the earliest presentation time of every segment is its `tfdt`, and

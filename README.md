@@ -82,7 +82,8 @@ All content can be unzipped using the top-level command
 that finds the zip files at any depth and unzips each one in its own directory.
 It then runs the `postunpack.sh` script of any asset that has one, which
 makes files that are not stored in the repo, like the fixed MPD of
-`mpeg-h_one-day-in-berlin`.
+`mpeg-h_one-day-in-berlin`. `testpic4_8s` and `testrotate_2s` have no zip
+files; they are generated, as described in their sections.
 
 You can also unpack a single asset like `testpic_2s` using
 
@@ -115,6 +116,8 @@ YAML config. It needs Go and an ffmpeg with the encoders used (Homebrew's
 * AAC, Opus and AC-3 audio, with the encoder priming handled
 * multi-bitrate content: video and audio representations that share an
   Adaptation Set, so that a player can switch between them
+* extra MPDs with some of the representations, and GOPs shorter than the
+  segments
 * integer frame rates and 29.97, 59.94 and 23.976 fps
 * `$Number$` with `@duration`, SegmentTimeline with `$Time$`, and
   SegmentTimeline with `$Number$` (which livesim2 does not read yet,
@@ -137,7 +140,6 @@ They are about two minutes long, and `-duration` sets another length:
 | `codecs_2s.yaml` | AVC, HEVC and AV1 ladders, and AAC, Opus and AC-3, with SegmentTimeline and `$Time$` |
 | `bframes_2s.yaml` | AVC and HEVC with B-frames at 30 fps, and AAC with its priming in an edit list |
 | `timeline_number_2s.yaml` | SegmentTimeline with `$Number$` |
-| `ladder_8s.yaml` | 8 s segments, with the representations of `testpic4_8s` |
 | `ntsc_2s.yaml` | 29.97 fps with 2.002 s segments and a drop-frame timecode |
 | `ntsc60_2s.yaml` | 59.94 fps with 2.002 s segments |
 
@@ -301,18 +303,36 @@ The MPDs are:
 
 ### testpic4_8s
 
-A 1-hour long asset with 8s segments with 30fps video at three bitrates (300kbps, 600kbps, and 1200kbps) and MPDs that contain different subsets.
+A 1-hour asset with 8s segments, with 30fps video at three bitrates and MPDs
+that contain different subsets. Only its config, `testpic4_8s/contentgen.yaml`,
+is stored in the repo. [`tools/contentgen`](tools/contentgen/README.md) generates
+the content, with the look described in
+[Generate your own assets](#generate-your-own-assets):
 
-**Note:** the bitrate shown in the video is wrong for two of the representations:
-V600 shows "300 kbit/s" and V1200 shows "600 kbit/s". The actual bitrates, and
-the bandwidth values in the MPDs, are right. The asset should be replaced by a
-correctly labeled one later.
+```sh
+> go -C tools/contentgen build
+> FFMPEG=/opt/homebrew/opt/ffmpeg-full/bin/ffmpeg tools/contentgen/contentgen -config testpic4_8s/contentgen.yaml
+```
+
+This takes about 6 minutes on a recent Mac and writes about 930 MB. If the
+directory still has the stored content of v2.1.0 or earlier, add `-force`,
+since contentgen only replaces what it made itself.
+
+The video is AVC at 30fps with closed 1s GOPs and 3 B-frames. The audio is
+AAC-LC, 48kHz stereo, with a beep every second.
+
+| Rep | Type | Details |
+| --- | ---- | ------- |
+| V300 | video | 640x360, 300 kbps |
+| V600 | video | 640x360, 600 kbps |
+| V1200 | video | 960x540, 1200 kbps |
+| A48 | audio | 48 kbps, lang `en` |
 
 The MPDs are:
 
 | Name | Specifics  | livesim2 status |
-| ---- | ---------- | --------------- |  
-| Manifest.mpd | base simple MPD using SegmentTemplate with `$Number$` and all bitrates | OK |
+| ---- | ---------- | --------------- |
+| Manifest.mpd | SegmentTemplate with `$Number$` and all bitrates | OK |
 | Manifest300.mpd | same as Manifest.mpd but limited to 300kbps video | OK |
 | Manifest600.mpd | same as Manifest.mpd but limited to 300kbps and 600kbps video | OK |
 
@@ -396,9 +416,9 @@ dashcheck v0.3.0.
 > tools/check_assets.sh
 ```
 
-It takes about 20 s for all assets. `testrotate_2s` is only checked when it has
-been generated. After fixing or accepting findings, `tools/check_assets.sh
--update` writes the current findings to the known list.
+It takes about 20 s for all assets. `testpic4_8s` and `testrotate_2s` are only
+checked when they have been generated. After fixing or accepting findings,
+`tools/check_assets.sh -update` writes the current findings to the known list.
 
 ### contentgen
 

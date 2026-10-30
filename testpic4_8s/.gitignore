@@ -1,0 +1,12 @@
+# testpic4_8s ships only its contentgen config (contentgen.yaml).
+# tools/contentgen generates the DASH content, which is not committed.
+/V300/
+/V600/
+/V1200/
+/A48/
+/Manifest.mpd
+/Manifest300.mpd
+/Manifest600.mpd
+/*_data.json
+/*_data.json.gz
+/.contentgen-tmp/
