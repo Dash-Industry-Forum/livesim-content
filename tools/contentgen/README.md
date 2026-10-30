@@ -118,6 +118,14 @@ with only the listed ones, for example a single bitrate, and its own title
 (default the asset title). `maxWidth` and `maxHeight` follow the
 representations of each MPD.
 
+Every representation is a CMAF track, with the `cmfc` brand in its
+`init.mp4`, so the MPDs signal the DASH profile for CMAF content
+(`urn:mpeg:dash:profile:cmaf:2019`) besides the live profile. If all codecs
+of an MPD are in DASH-IF IOP simple (AVC Main or High up to level 4.0, HEVC
+Main up to level 4.1, and AAC), it also signals
+`http://dashif.org/guidelines/dash-if-simple`. dashcheck then applies the
+CMAF and IOP checks to the asset, and not only to low-latency output.
+
 ## Timing
 
 * Each segment starts with a keyframe exactly on the segment grid, and the

@@ -295,13 +295,62 @@ func TestSubsetMPD(t *testing.T) {
 	mpd := string(data)
 	// Only the listed representations, in config order, and maxWidth and
 	// maxHeight from them, not from the whole asset.
-	for _, want := range []string{`id="V1"`, `id="A1"`, `maxWidth="640"`, `maxHeight="360"`, c.Title} {
+	profiles := `profiles="urn:mpeg:dash:profile:isoff-live:2011,urn:mpeg:dash:profile:cmaf:2019,` +
+		`http://dashif.org/guidelines/dash-if-simple"`
+	for _, want := range []string{`id="V1"`, `id="A1"`, `maxWidth="640"`, `maxHeight="360"`, c.Title, profiles} {
 		if !strings.Contains(mpd, want) {
 			t.Errorf("subset MPD lacks %s:\n%s", want, mpd)
 		}
 	}
 	if strings.Contains(mpd, `id="V2"`) || strings.Index(mpd, `id="V1"`) > strings.Index(mpd, `id="A1"`) {
 		t.Errorf("unexpected representations or order:\n%s", mpd)
+	}
+}
+
+func TestMPDProfiles(t *testing.T) {
+	const live, cmaf = "urn:mpeg:dash:profile:isoff-live:2011", "urn:mpeg:dash:profile:cmaf:2019"
+	for _, tc := range []struct {
+		codecs []string
+		want   string
+	}{
+		{[]string{"avc1.64001f", "mp4a.40.2"}, live + "," + cmaf + ",http://dashif.org/guidelines/dash-if-simple"},
+		{[]string{"hvc1.1.6.L123.90", "mp4a.40.29"}, live + "," + cmaf + ",http://dashif.org/guidelines/dash-if-simple"},
+		{[]string{"avc1.640028", "avc1.64002a"}, live + "," + cmaf}, // 1080p60 is level 4.2
+		{[]string{"hvc1.2.4.L120.90"}, live + "," + cmaf},           // Main 10
+		{[]string{"hvc1.1.6.H120.90"}, live + "," + cmaf},           // High tier
+		{[]string{"avc1.42c01e"}, live + "," + cmaf},                // Baseline
+		{[]string{"av01.0.08M.08", "opus"}, live + "," + cmaf},
+		{[]string{"avc1.64001f", "ac-3"}, live + "," + cmaf},
+	} {
+		var reps []*repResult
+		for _, codecs := range tc.codecs {
+			reps = append(reps, &repResult{codecs: codecs})
+		}
+		if got := string(mpdProfiles(reps)); got != tc.want {
+			t.Errorf("mpdProfiles(%v) = %s, want %s", tc.codecs, got, tc.want)
+		}
+	}
+}
+
+func TestWriteInitBrands(t *testing.T) {
+	// ffmpeg's video init has no cmfc brand; writeInit adds it.
+	init := mp4.NewMP4Init()
+	init.AddChild(mp4.NewFtyp("iso5", 512, []string{"iso5", "iso6", "mp41"}))
+	moov := mp4.NewMoovBox()
+	init.AddChild(moov)
+	moov.AddChild(mp4.CreateMvhd())
+	moov.AddChild(mp4.NewMvexBox())
+	init.AddEmptyTrack(90000, "video", "und")
+	path := t.TempDir() + "/init.mp4"
+	if err := writeInit(init, 0, path); err != nil {
+		t.Fatal(err)
+	}
+	f, err := mp4.ReadMP4File(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := f.Init.Ftyp.CompatibleBrands(); strings.Join(got, ",") != "iso5,iso6,mp41,cmfc" {
+		t.Errorf("compatible brands %v, want iso5,iso6,mp41,cmfc", got)
 	}
 }
 
