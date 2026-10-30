@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `tools/contentgen/examples/ladder_8s.yaml`, replaced by `testpic4_8s/contentgen.yaml`
 
+### Fixed
+
+- The `testpic_2s` and `testpic_6s` MPDs with the unknown profile `urn:com:dashif:dash264` signal DASH-IF IOP simple
+  instead, and the thumbnail Adaptation Set of `testpic_2s/Manifest_thumbs.mpd` has `segmentAlignment`
+
 ## [2.1.0] - 2026-10-27
 
 ### Added
