@@ -42,6 +42,21 @@ func TestValidate(t *testing.T) {
 		{"odd width", func(c *Config) { c.Video.Representations[0].Width = 641 }, "even", false},
 		{"bad signal", func(c *Config) { c.Audio.Representations[0].Signal = "noise" }, "signal", false},
 		{"AAC not whole frames", func(c *Config) { c.Duration = 30 }, "", true},
+		{"1 s GOPs", func(c *Config) { c.Video.GOP = 1 }, "", false},
+		{"GOP does not divide the segment", func(c *Config) { c.Video.GOP = 0.8 }, "video.gop", false},
+		{"GOP not whole frames", func(c *Config) { c.Video.GOP = 0.5 }, "video.gop", false},
+		{"extra MPD", func(c *Config) {
+			c.MPDs = []MPDConfig{{Name: "Manifest300.mpd", Representations: []string{"V1", "A1"}}}
+		}, "", false},
+		{"extra MPD with unknown representation", func(c *Config) {
+			c.MPDs = []MPDConfig{{Name: "Manifest300.mpd", Representations: []string{"V2"}}}
+		}, `no representation "V2"`, false},
+		{"extra MPD named like the main one", func(c *Config) {
+			c.MPDs = []MPDConfig{{Name: "Manifest.mpd", Representations: []string{"V1"}}}
+		}, "used twice", false},
+		{"extra MPD without .mpd", func(c *Config) {
+			c.MPDs = []MPDConfig{{Name: "sub/Manifest300.mpd", Representations: []string{"V1"}}}
+		}, "ends in .mpd", false},
 	}
 	for _, tc := range cases {
 		c := testConfig()
@@ -121,6 +136,15 @@ func TestPlanVideo(t *testing.T) {
 	// A GOP that does not match the segment duration is an error.
 	if _, err := planVideo(testTrack(90000, videoSamples(4, 40, frameDur, false), 0), "V", gop*frameDur, 4); err == nil {
 		t.Error("expected an error for GOPs that do not match the segments")
+	}
+
+	// Two GOPs per segment: keyframes inside a segment are fine.
+	p, err = planVideo(testTrack(90000, videoSamples(8, gop/2, frameDur, true), 0), "V", gop*frameDur, 4)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(p.segs) != 4 || p.notConst != 0 || p.segs[1].first != gop {
+		t.Errorf("1 s GOPs: segs=%d notConst=%d second segment starts at %d", len(p.segs), p.notConst, p.segs[1].first)
 	}
 }
 
@@ -241,6 +265,46 @@ func TestVideoFilterLabels(t *testing.T) {
 	}
 }
 
+func TestSubsetMPD(t *testing.T) {
+	c := testConfig()
+	c.Video.Representations = append(c.Video.Representations,
+		VideoRep{ID: "V2", Codec: "avc", Width: 960, Height: 540, Bitrate: 600})
+	c.MPDs = []MPDConfig{{Name: "Manifest300.mpd", Representations: []string{"A1", "V1"}}}
+	c.setDefaults()
+	var results []*repResult
+	for i := range c.Video.Representations {
+		r := &c.Video.Representations[i]
+		p, err := planVideo(testTrack(90000, videoSamples(4, 50, 3600, false), 0), r.ID, 180000, 4)
+		if err != nil {
+			t.Fatal(err)
+		}
+		results = append(results, &repResult{pkg: p, codecs: "avc1.64001e", video: r})
+	}
+	p, err := planAudio(testTrack(48000, audioSamples(400, 1024), 0), "A1", PrimingStrip, 375, 96000, 4)
+	if err != nil {
+		t.Fatal(err)
+	}
+	results = append(results, &repResult{pkg: p, codecs: "mp4a.40.2", audio: &c.Audio.Representations[0]})
+
+	path := t.TempDir() + "/Manifest300.mpd"
+	md := c.MPDs[0]
+	if err := writeMPD(c, md.Title, selectReps(results, md.Representations), path); err != nil {
+		t.Fatal(err)
+	}
+	data, _ := os.ReadFile(path)
+	mpd := string(data)
+	// Only the listed representations, in config order, and maxWidth and
+	// maxHeight from them, not from the whole asset.
+	for _, want := range []string{`id="V1"`, `id="A1"`, `maxWidth="640"`, `maxHeight="360"`, c.Title} {
+		if !strings.Contains(mpd, want) {
+			t.Errorf("subset MPD lacks %s:\n%s", want, mpd)
+		}
+	}
+	if strings.Contains(mpd, `id="V2"`) || strings.Index(mpd, `id="V1"`) > strings.Index(mpd, `id="A1"`) {
+		t.Errorf("unexpected representations or order:\n%s", mpd)
+	}
+}
+
 func TestRatio(t *testing.T) {
 	for _, tc := range []struct {
 		w, h int
@@ -319,7 +383,7 @@ func TestAudioAdaptationSets(t *testing.T) {
 		results = append(results, &repResult{pkg: p, codecs: "mp4a.40.2", audio: &c.Audio.Representations[i]})
 	}
 	path := t.TempDir() + "/Manifest.mpd"
-	if err := writeMPD(c, results, path); err != nil {
+	if err := writeMPD(c, c.Title, results, path); err != nil {
 		t.Fatal(err)
 	}
 	data, _ := os.ReadFile(path)
@@ -335,7 +399,7 @@ func TestAudioAdaptationSets(t *testing.T) {
 	// Representations with different segment timing cannot share an Adaptation Set.
 	p, _ := planAudio(testTrack(48000, audioSamples(400, 1024), 1024), "A128", PrimingElst, 375, 96000, 4)
 	results[1].pkg = p
-	if err := writeMPD(c, results, path); err == nil || !strings.Contains(err.Error(), "different segment timing") {
+	if err := writeMPD(c, c.Title, results, path); err == nil || !strings.Contains(err.Error(), "different segment timing") {
 		t.Errorf("expected a segment timing error, got %v", err)
 	}
 }

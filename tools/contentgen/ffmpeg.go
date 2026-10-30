@@ -224,7 +224,7 @@ func timecodeText(r Rate) string {
 // to a fragmented MP4 with one fragment per GOP.
 func videoArgs(c *Config, r VideoRep, files overlayFiles, out string) []string {
 	fps := c.Video.FPS
-	gop := c.segFrames()
+	gop := c.gopFrames()
 	frames := c.totalFrames()
 	br := r.Bitrate
 	args := []string{"-hide_banner", "-y",

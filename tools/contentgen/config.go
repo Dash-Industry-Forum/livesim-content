@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -36,13 +37,22 @@ type Config struct {
 	StartNumber     *int        `yaml:"startNumber"`
 	MinBufferTime   float64     `yaml:"minBufferTime"` // seconds
 	MPDName         string      `yaml:"mpdName"`
+	MPDs            []MPDConfig `yaml:"mpds"` // extra MPDs with some of the representations
 	Video           VideoConfig `yaml:"video"`
 	Audio           AudioConfig `yaml:"audio"`
+}
+
+// MPDConfig is an extra MPD with a subset of the representations.
+type MPDConfig struct {
+	Name            string   `yaml:"name"`
+	Title           string   `yaml:"title"`           // default the title of the asset
+	Representations []string `yaml:"representations"` // representation ids
 }
 
 // VideoConfig is common to all video representations.
 type VideoConfig struct {
 	FPS             Rate       `yaml:"fps"`     // 25, 30000/1001, 29.97, ...
+	GOP             float64    `yaml:"gop"`     // seconds between keyframes, 0 (default) for the segment duration
 	BFrames         int        `yaml:"bframes"` // 0 gives I and P frames only
 	Noise           int        `yaml:"noise"`   // temporal noise strength 0-50, 0 = off
 	Representations []VideoRep `yaml:"representations"`
@@ -120,6 +130,11 @@ func (c *Config) setDefaults() {
 	if c.Title == "" {
 		c.Title = fmt.Sprintf("%s: generated test content with %gs segments", c.Name, c.SegmentDuration)
 	}
+	for i := range c.MPDs {
+		if c.MPDs[i].Title == "" {
+			c.MPDs[i].Title = c.Title
+		}
+	}
 	for i := range c.Video.Representations {
 		r := &c.Video.Representations[i]
 		if r.Color == "" {
@@ -154,6 +169,15 @@ func (c *Config) setDefaults() {
 // segFrames returns the number of video frames per segment.
 func (c *Config) segFrames() int {
 	n, _ := c.Video.FPS.frames(c.SegmentDuration)
+	return n
+}
+
+// gopFrames returns the number of video frames per GOP, by default a segment.
+func (c *Config) gopFrames() int {
+	if c.Video.GOP == 0 {
+		return c.segFrames()
+	}
+	n, _ := c.Video.FPS.frames(c.Video.GOP)
 	return n
 }
 
@@ -200,6 +224,9 @@ func (c *Config) validate() (warnings []string, err error) {
 		if tf, ok := fps.frames(c.Duration); c.Duration > 0 && (!ok || tf%sf != 0) {
 			add("duration %g s is not a whole number of %g s segments at %s fps; "+
 				"-suggest %g lists durations that are", c.Duration, c.SegmentDuration, fps, c.Duration)
+		}
+		if gf, ok := fps.frames(c.Video.GOP); c.Video.GOP < 0 || c.Video.GOP > 0 && (!ok || gf == 0 || sf%gf != 0) {
+			add("video.gop %g s does not divide the %g s segments into whole frames", c.Video.GOP, c.SegmentDuration)
 		}
 	}
 	switch c.Addressing {
@@ -272,6 +299,29 @@ func (c *Config) validate() (warnings []string, err error) {
 				"%s: %g s is not a whole number of %s frames (%d samples), so the audio is up to one frame "+
 					"longer than the video and does not loop seamlessly; -suggest %g lists durations that are",
 				r.ID, c.Duration, r.Codec, fs, c.Duration))
+		}
+	}
+	mpdNames := map[string]bool{c.MPDName: true}
+	for _, md := range c.MPDs {
+		if !strings.HasSuffix(md.Name, ".mpd") || strings.ContainsAny(md.Name, `/\`) {
+			add("mpds: name %q: use a file name that ends in .mpd", md.Name)
+		}
+		if mpdNames[md.Name] {
+			add("mpds: %s is used twice", md.Name)
+		}
+		mpdNames[md.Name] = true
+		if len(md.Representations) == 0 {
+			add("mpds: %s has no representations", md.Name)
+		}
+		listed := make(map[string]bool)
+		for _, id := range md.Representations {
+			if !ids[id] {
+				add("mpds: %s: there is no representation %q", md.Name, id)
+			}
+			if listed[id] {
+				add("mpds: %s lists %s twice", md.Name, id)
+			}
+			listed[id] = true
 		}
 	}
 	return warnings, errors.Join(errs...)

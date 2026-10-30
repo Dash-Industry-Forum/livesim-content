@@ -199,15 +199,29 @@ func run(o options) error {
 		res.audio = r
 		results = append(results, res)
 	}
-	mpdPath := filepath.Join(out, c.MPDName)
-	if err := writeMPD(c, results, mpdPath); err != nil {
+	if err := writeMPD(c, c.Title, results, filepath.Join(out, c.MPDName)); err != nil {
 		return err
+	}
+	for _, md := range c.MPDs {
+		reps := selectReps(results, md.Representations)
+		if err := writeMPD(c, md.Title, reps, filepath.Join(out, md.Name)); err != nil {
+			return err
+		}
 	}
 	if err := saveConfig(c, o.cfgPath, out); err != nil {
 		return err
 	}
-	report(c, results, mpdPath)
+	report(c, results, out)
 	return nil
+}
+
+// mpdNames returns the file names of all MPDs of the asset.
+func (c *Config) mpdNames() []string {
+	names := []string{c.MPDName}
+	for _, md := range c.MPDs {
+		names = append(names, md.Name)
+	}
+	return names
 }
 
 // prepareRepDirs removes old representation directories made by contentgen.
@@ -233,9 +247,11 @@ func prepareRepDirs(c *Config, out string, force bool) error {
 				return fmt.Errorf("%s exists and was not made by contentgen; use -force to overwrite it", dir)
 			}
 		}
-		mpdPath := filepath.Join(out, c.MPDName)
-		if data, err := os.ReadFile(mpdPath); err == nil && !strings.Contains(string(data), mpdSource) {
-			return fmt.Errorf("%s exists and was not made by contentgen; use -force to overwrite it", mpdPath)
+		for _, name := range c.mpdNames() {
+			mpdPath := filepath.Join(out, name)
+			if data, err := os.ReadFile(mpdPath); err == nil && !strings.Contains(string(data), mpdSource) {
+				return fmt.Errorf("%s exists and was not made by contentgen; use -force to overwrite it", mpdPath)
+			}
 		}
 	}
 	for _, dir := range existing {
@@ -298,8 +314,8 @@ func saveConfig(c *Config, cfgPath, out string) error {
 }
 
 // report prints a summary of the generated representations.
-func report(c *Config, results []*repResult, mpdPath string) {
-	fmt.Printf("\nWrote %s\n", mpdPath)
+func report(c *Config, results []*repResult, out string) {
+	fmt.Printf("\nWrote %s in %s\n", strings.Join(c.mpdNames(), ", "), out)
 	fmt.Printf("%-12s %-22s %5s %8s %8s %6s %10s %s\n", "rep", "codecs", "segs", "target", "average", "", "@bandwidth", "edit list")
 	for _, r := range results {
 		target := 0

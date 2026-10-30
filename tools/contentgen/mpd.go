@@ -22,9 +22,26 @@ type repResult struct {
 	audio     *AudioRep
 }
 
-// writeMPD writes a static MPD. Video representations are grouped in one
-// Adaptation Set per codec; every audio representation gets its own.
-func writeMPD(c *Config, reps []*repResult, path string) error {
+// selectReps returns the representations with the given ids, in the order of
+// the config.
+func selectReps(reps []*repResult, ids []string) []*repResult {
+	want := make(map[string]bool, len(ids))
+	for _, id := range ids {
+		want[id] = true
+	}
+	var sel []*repResult
+	for _, r := range reps {
+		if want[r.pkg.id] {
+			sel = append(sel, r)
+		}
+	}
+	return sel
+}
+
+// writeMPD writes a static MPD with the given representations. Video
+// representations are grouped in one Adaptation Set per codec, and audio
+// representations by codec, signal, language and label.
+func writeMPD(c *Config, title string, reps []*repResult, path string) error {
 	mpd := m.NewMPD("static")
 	mpd.Profiles = m.PROFILE_LIVE
 	mpd.MediaPresentationDuration = m.Seconds2DurPtrFloat64(c.Duration)
@@ -39,7 +56,7 @@ func writeMPD(c *Config, reps []*repResult, path string) error {
 	mpd.MaxSegmentDuration = m.Seconds2DurPtrFloat64(math.Ceil(maxSeg*1000) / 1000)
 	mpd.ProgramInformation = []*m.ProgramInformationType{{
 		MoreInformationURL: "https://github.com/Dash-Industry-Forum/livesim-content",
-		Title:              c.Title,
+		Title:              title,
 		Source:             mpdSource,
 	}}
 	period := &m.Period{Id: "P0", Start: m.Seconds2DurPtr(0)}

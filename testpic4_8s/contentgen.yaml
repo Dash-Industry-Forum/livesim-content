@@ -1,0 +1,26 @@
+# testpic4_8s: 1 hour with 8 s segments, 30 fps AVC video at 300 and 600 kbps
+# (640x360) and 1200 kbps (960x540), and AAC audio at 48 kbps. Generate it with
+#   tools/contentgen/contentgen -config testpic4_8s/contentgen.yaml
+name: testpic4_8s
+title: "testpic4_8s: video 30fps at 1200, 600 and 300 kbps, audio 48kHz 48 kbps"
+duration: 3600
+segmentDuration: 8
+minBufferTime: 1
+mpds:
+  - name: Manifest300.mpd
+    title: "testpic4_8s: video 640x360@30 at 300 kbps, audio 48kHz 48 kbps"
+    representations: [V300, A48]
+  - name: Manifest600.mpd
+    title: "testpic4_8s: video 640x360@30 at 600 and 300 kbps, audio 48kHz 48 kbps"
+    representations: [V300, V600, A48]
+video:
+  fps: 30
+  gop: 1
+  bframes: 3
+  representations:
+    - {id: V300, codec: avc, width: 640, height: 360, bitrate: 300}
+    - {id: V600, codec: avc, width: 640, height: 360, bitrate: 600}
+    - {id: V1200, codec: avc, width: 960, height: 540, bitrate: 1200}
+audio:
+  representations:
+    - {id: A48, codec: aac, bitrate: 48, lang: en}
