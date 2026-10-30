@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 
 	"github.com/Eyevinn/mp4ff/aac"
@@ -55,6 +56,29 @@ func codecString(init *mp4.InitSegment) (string, error) {
 		return "ac-3", nil
 	}
 	return "", fmt.Errorf("unknown sample entry")
+}
+
+// iopSimpleCodec reports whether a codecs string is one of DASH-IF IOP simple
+// (IOP 4.3 8.4): AVC Main or High up to level 4.0, HEVC Main, Main tier, up
+// to level 4.1, or (HE-)AAC.
+func iopSimpleCodec(codecs string) bool {
+	parts := strings.Split(codecs, ".")
+	switch parts[0] {
+	case "avc1", "avc3": // avc1.PPCCLL
+		if len(parts) != 2 || len(parts[1]) != 6 {
+			return false
+		}
+		v, err := strconv.ParseUint(parts[1], 16, 32)
+		profile, level := v>>16, v&0xff
+		return err == nil && (profile == 77 || profile == 100) && level <= 40
+	case "hvc1", "hev1": // hvc1.P.C.TLL...
+		if len(parts) < 4 || parts[1] != "1" || !strings.HasPrefix(parts[3], "L") {
+			return false
+		}
+		level, err := strconv.Atoi(parts[3][1:])
+		return err == nil && level <= 123
+	}
+	return codecs == "mp4a.40.2" || codecs == "mp4a.40.5" || codecs == "mp4a.40.29"
 }
 
 // requiredBandwidth returns the lowest @bandwidth (bits/s) for which the DASH

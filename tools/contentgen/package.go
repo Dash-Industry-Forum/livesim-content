@@ -398,6 +398,11 @@ func writeInit(init *mp4.InitSegment, elst int64, path string) error {
 	}
 	trak.Children = children
 	trak.Edts = edts
+	// The CMAF header lists the structural brand cmfc (CMAF 7.2). ffmpeg
+	// writes it only with -movflags +cmaf, as for audio.
+	if init.Ftyp != nil && !init.Ftyp.HasCompatibleBrand("cmfc") {
+		init.Ftyp.AddCompatibleBrands([]string{"cmfc"})
+	}
 	var buf bytes.Buffer
 	if err := init.Encode(&buf); err != nil {
 		return err

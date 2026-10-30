@@ -319,7 +319,8 @@ directory still has the stored content of v2.1.0 or earlier, add `-force`,
 since contentgen only replaces what it made itself.
 
 The video is AVC at 30fps with closed 1s GOPs and 3 B-frames. The audio is
-AAC-LC, 48kHz stereo, with a beep every second.
+AAC-LC, 48kHz stereo, with a beep every second. The MPDs signal the live
+profile, the DASH profile for CMAF content and DASH-IF IOP simple.
 
 | Rep | Type | Details |
 | --- | ---- | ------- |
