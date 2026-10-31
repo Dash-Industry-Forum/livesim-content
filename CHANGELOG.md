@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-10-31
+
 ### Added
 
 - `tools/contentgen`: `mpds` writes extra MPDs with some of the representations, and `video.gop` sets a keyframe
@@ -93,7 +95,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated ProgramInformation
 - Updated compressed representation data files (json.gz) to livesim2 v 1.2.0.
 
-[Unreleased]: https://github.com/Dash-Industry-Forum/livesim-content/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/Dash-Industry-Forum/livesim-content/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/Dash-Industry-Forum/livesim-content/compare/v2.1.0...v3.0.0
 [2.1.0]: https://github.com/Dash-Industry-Forum/livesim-content/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/Dash-Industry-Forum/livesim-content/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/Dash-Industry-Forum/livesim-content/releases/tag/v1.0.0
